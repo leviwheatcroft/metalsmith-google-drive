@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>README.md</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="doc-style.css" />
+  <script src="doc-filelist.js"></script>
+  <script>
+    var relativeDir = "", thisFile = "README.md", defaultSidebar = true;
+  </script>
+  <script src="doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+      <div class="heading h1">
+        <a href="#metalsmith-google-drive">metalsmith-google-drive</a>
+      </div>
+      <div class="heading h2">
+        <a href="#install">install</a>
+      </div>
+      <div class="heading h2">
+        <a href="#usage">usage</a>
+      </div>
+      <div class="heading h3">
+        <a href="#api%20credentials">api credentials</a>
+      </div>
+      <div class="heading h3">
+        <a href="#example">example</a>
+      </div>
+      <div class="heading h3">
+        <a href="#options">options</a>
+      </div>
+      <div class="heading h3">
+        <a href="#notes">notes</a>
+      </div>
+      <div class="heading h2">
+        <a href="#node%204%20lts">node 4 LTS</a>
+      </div>
+      <div class="heading h2">
+        <a href="#author">Author</a>
+      </div>
+      <div class="heading h2">
+        <a href="#contributing">Contributing</a>
+      </div>
+      <div class="heading h2">
+        <a href="#license">License</a>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="docs markdown">
+<div class="pilwrap" id="metalsmith-google-drive">
+  <h1>
+    <a href="#metalsmith-google-drive" name="metalsmith-google-drive" class="pilcrow">&#182;</a>
+    metalsmith-google-drive
+  </h1>
+</div>
+
+
+<p><img src="https://nodei.co/npm/metalsmith-google-drive.png?downloads=true&amp;downloadRank=true&amp;stars=true" alt="nodei.co" title="" /></p>
+
+<p><img src="https://img.shields.io/npm/v/metalsmith-google-drive.svg" alt="npm" title="" /></p>
+
+<p><img src="https://img.shields.io/github/issues/leviwheatcroft/metalsmith-google-drive.svg" alt="github-issues" title="" /></p>
+
+<p><img src="https://img.shields.io/github/stars/leviwheatcroft/metalsmith-google-drive.svg" alt="stars" title="" /></p>
+
+<p><img src="https://img.shields.io/github/forks/leviwheatcroft/metalsmith-google-drive.svg" alt="forks" title="" /></p>
+
+<p><a href="metalsmith.io">metalsmith</a> to scrape files from google drive</p>
+
+<p>Highlights:</p>
+
+<ul>
+<li>requests token authorisation via CLI</li>
+<li>caches token and files, only requests changed files</li>
+<li>no tests yet</li>
+<li>Take a look at the <a href="https://leviwheatcroft.github.io/metalsmith-google-drive" title="fancy annotated source">annotated source</a></li>
+</ul>
+
+
+<div class="pilwrap" id="install">
+  <h2>
+    <a href="#install" name="install" class="pilcrow">&#182;</a>
+    install
+  </h2>
+</div>
+
+
+<p>sorry not published to npm just yet...</p>
+
+<p><code>npm i --save github:leviwheatcroft/metalsmith-google-drive</code></p>
+
+
+<div class="pilwrap" id="usage">
+  <h2>
+    <a href="#usage" name="usage" class="pilcrow">&#182;</a>
+    usage
+  </h2>
+</div>
+
+
+
+<div class="pilwrap" id="api%20credentials">
+  <h3>
+    <a href="#api%20credentials" name="api%20credentials" class="pilcrow">&#182;</a>
+    api credentials
+  </h3>
+</div>
+
+
+<p>Follow <a href="https://developers.google.com/drive/v3/web/quickstart/nodejs" title="google drive nodejs quickstart">this guide</a>, go through A to G under <em>Step 1</em>, the downloaded file
+will contain the credentials you need to pass into this plugin. In these
+examples I'm using <a href="https://www.npmjs.com/package/config" title="config package on npm registry">config</a> to store them.</p>
+
+
+<div class="pilwrap" id="example">
+  <h3>
+    <a href="#example" name="example" class="pilcrow">&#182;</a>
+    example
+  </h3>
+</div>
+
+
+
+<div class="highlight"><pre><code><span class="nx">Metalsmith</span><span class="p">(</span><span class="s1">&#39;src&#39;</span><span class="p">)</span>
+<span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">googleDrive</span><span class="p">({</span>
+  <span class="nx">auth</span><span class="o">:</span> <span class="nx">config</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;driveAuth&#39;</span><span class="p">),</span>
+  <span class="nx">src</span><span class="o">:</span> <span class="s1">&#39;0B1QpLgu4qk48R1hDBi1wWFkyV2s&#39;</span><span class="p">,</span>
+  <span class="nx">dest</span><span class="o">:</span> <span class="s1">&#39;articles&#39;</span>
+<span class="p">}))</span>
+<span class="p">.</span><span class="nx">build</span><span class="p">(</span> <span class="p">...</span> <span class="p">)</span>
+</code></pre></div>
+
+
+
+
+<div class="pilwrap" id="options">
+  <h3>
+    <a href="#options" name="options" class="pilcrow">&#182;</a>
+    options
+  </h3>
+</div>
+
+
+<p>Options object must contain:</p>
+
+<ul>
+<li><code>src</code> being the drive id of the parent folder you want to scrape</li>
+<li><code>dest</code> the path under which you want to place the scraped files in metalsmith</li>
+<li><code>auth</code> object containing <code>client_id</code>, <code>client_secret</code> and <code>redirect_uris</code></li>
+</ul>
+
+
+<div class="pilwrap" id="notes">
+  <h3>
+    <a href="#notes" name="notes" class="pilcrow">&#182;</a>
+    notes
+  </h3>
+</div>
+
+
+<ul>
+<li>to get a google drive folder id just view it in your browser and copy the id
+from the url</li>
+<li>files in subfolders on google drive will be included, but their containing
+folders will not be included in the path in metalsmith. In otherwords, this
+plugin does a recursive search but flattens the result.</li>
+<li>files scraped from drive will not be stored in your source folder, they're
+added directly to metalsmith <code>files</code> structure during build.</li>
+</ul>
+
+
+<div class="pilwrap" id="node%204%20lts">
+  <h2>
+    <a href="#node%204%20lts" name="node%204%20lts" class="pilcrow">&#182;</a>
+    node 4 LTS
+  </h2>
+</div>
+
+
+<p><code>var drive = require('metalsmith-google-drive/dist/node4')</code></p>
+
+
+<div class="pilwrap" id="author">
+  <h2>
+    <a href="#author" name="author" class="pilcrow">&#182;</a>
+    Author
+  </h2>
+</div>
+
+
+<p>Levi Wheatcroft <a href="&#109;&#97;&#105;&#x6C;&#116;&#x6F;:&#108;&#x65;&#x76;&#105;&#64;&#119;&#x68;t&#x2E;&#x63;&#x72;">&#108;&#x65;&#x76;&#105;&#64;&#119;&#x68;t&#x2E;&#x63;&#x72;</a></p>
+
+
+<div class="pilwrap" id="contributing">
+  <h2>
+    <a href="#contributing" name="contributing" class="pilcrow">&#182;</a>
+    Contributing
+  </h2>
+</div>
+
+
+<p>Contributions welcome; Please submit all pull requests against the master
+branch.</p>
+
+
+<div class="pilwrap" id="license">
+  <h2>
+    <a href="#license" name="license" class="pilcrow">&#182;</a>
+    License
+  </h2>
+</div>
+
+
+<ul>
+<li><strong>MIT</strong> : <a href='http://opensource.org/licenses/MIT'>http://opensource.org/licenses/MIT</a></li>
+</ul></div>
+  </div>
+</body>
+</html>

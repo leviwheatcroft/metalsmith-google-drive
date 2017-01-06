@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>index.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../", thisFile = "test/index.js", defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container"><div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+      <tr>
+        <td class="docs">
+          <h1>index.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+</div>
+
+        </td>
+        <td class="code highlight"><div class="highlight"><pre><span class="kr">import</span> <span class="nx">Metalsmith</span> <span class="nx">from</span> <span class="s1">&#39;metalsmith&#39;</span>
+<span class="kr">import</span> <span class="nx">assert</span> <span class="nx">from</span> <span class="s1">&#39;assert&#39;</span>
+<span class="kr">import</span> <span class="nx">googleDrive</span> <span class="nx">from</span> <span class="s1">&#39;../lib&#39;</span>
+<span class="kr">import</span> <span class="nx">config</span> <span class="nx">from</span> <span class="s1">&#39;config&#39;</span>
+<span class="kr">import</span> <span class="nx">lint</span> <span class="nx">from</span> <span class="s1">&#39;mocha-eslint&#39;</span>
+
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs">
+<div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
+</div>
+<p>lint(['lib/index.js'])</p>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+
+<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;metalsmith-google-drive&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should be able to do something&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">Metalsmith</span><span class="p">(</span><span class="s1">&#39;test/fixtures&#39;</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">googleDrive</span><span class="p">({</span>
+      <span class="nx">auth</span><span class="o">:</span> <span class="nx">config</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;metalsmith-google-drive&#39;</span><span class="p">),</span>
+      <span class="nx">src</span><span class="o">:</span> <span class="s1">&#39;0B1QpLgu4mpt8R1hHWi1wWFkyV2s&#39;</span><span class="p">,</span>
+      <span class="nx">dest</span><span class="o">:</span> <span class="s1">&#39;articles&#39;</span>
+    <span class="p">}))</span>
+    <span class="p">.</span><span class="nx">build</span><span class="p">((</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+      <span class="nx">done</span><span class="p">()</span>
+    <span class="p">})</span>
+  <span class="p">}).</span><span class="nx">timeout</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="p">})</span>
+</pre></div>
+        </td>
+      </tr>
+  </tbody>
+</table>
+  </div>
+</body>
+</html>
