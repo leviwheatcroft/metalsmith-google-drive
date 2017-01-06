@@ -1,47 +1,71 @@
-# metalsmith-mime-type
+# metalsmith-google-drive
 
-![nodei.co](https://nodei.co/npm/metalsmith-mime-type.png?downloads=true&downloadRank=true&stars=true)
+![nodei.co](https://nodei.co/npm/metalsmith-google-drive.png?downloads=true&downloadRank=true&stars=true)
 
-![npm](https://img.shields.io/npm/v/metalsmith-mime-type.svg)
+![npm](https://img.shields.io/npm/v/metalsmith-google-drive.svg)
 
-![github-issues](https://img.shields.io/github/issues/leviwheatcroft/metalsmith-mime-type.svg)
+![github-issues](https://img.shields.io/github/issues/leviwheatcroft/metalsmith-google-drive.svg)
 
-![stars](https://img.shields.io/github/stars/leviwheatcroft/metalsmith-mime-type.svg)
+![stars](https://img.shields.io/github/stars/leviwheatcroft/metalsmith-google-drive.svg)
 
-![forks](https://img.shields.io/github/forks/leviwheatcroft/metalsmith-mime-type.svg)
+![forks](https://img.shields.io/github/forks/leviwheatcroft/metalsmith-google-drive.svg)
 
-[metalsmith](metalsmith.io) plugin to detect mime types from file contents
+[metalsmith](metalsmith.io) to scrape files from google drive
 
-This plugin is a thin wrapper around
-[mmmagic](https://www.npmjs.com/package/mmmagic) which inspects the contents of
-files to determine mime type rather than simply looking up the file extension
+Highlights:
 
-Take a look at the
-[annotated source](https://leviwheatcroft.github.io/metalsmith-mime-type/lib/index.js.html)
+ * requests token authorisation via CLI
+ * caches token and files, only requests changed files
+ * no tests yet
+ * Take a look at the [annotated source][1]
 
 ## install
 
-`npm i --save metalsmith-mime-type`
+sorry not published to npm just yet...
+
+`npm i --save github:leviwheatcroft/metalsmith-google-drive`
 
 ## usage
 
+### api credentials
+
+Follow [this guide][2], go through A to G under *Step 1*, the downloaded file
+will contain the credentials you need to pass into this plugin. In these
+examples I'm using [config][3] to store them.
+
+### example
+
+```javascript
+Metalsmith('src')
+.use(googleDrive({
+  auth: config.get('driveAuth'),
+  src: '0B1QpLgu4qk48R1hDBi1wWFkyV2s',
+  dest: 'articles'
+}))
+.build( ... )
 ```
-mimeType = require('metalsmith-mime-type')
 
-metalsmith(__dirname)
-.use(mimeType(['**/*','!*.jpg']))
-.build(callback)
-```
+### options
 
-## options
+Options object must contain:
 
-A single option, `src` is used as a minimatch mask to determine what files
-need to to have mimetypes assigned. can be passed in as an object property,
-or as a string. See usage example.
+ * `src` being the drive id of the parent folder you want to scrape
+ * `dest` the path under which you want to place the scraped files in metalsmith
+ * `auth` object containing `client_id`, `client_secret` and `redirect_uris`
+
+### notes
+
+ * to get a google drive folder id just view it in your browser and copy the id
+   from the url
+ * files in subfolders on google drive will be included, but their containing
+   folders will not be included in the path in metalsmith. In otherwords, this
+   plugin does a recursive search but flattens the result.
+ * files scraped from drive will not be stored in your source folder, they're
+   added directly to metalsmith `files` structure during build.
 
 ## node 4 LTS
 
-`var mimeType = require('metalsmith-mime-type/dist/node4')`
+`var drive = require('metalsmith-google-drive/dist/node4')`
 
 ## Author
 
@@ -55,3 +79,7 @@ branch.
 ## License
 
  - **MIT** : http://opensource.org/licenses/MIT
+
+[1]: https://leviwheatcroft.github.io/metalsmith-google-drive "fancy annotated source"
+[2]: https://developers.google.com/drive/v3/web/quickstart/nodejs "google drive nodejs quickstart"
+[3]: https://www.npmjs.com/package/config "config package on npm registry"
