@@ -10,14 +10,16 @@
 
 ![forks](https://img.shields.io/github/forks/leviwheatcroft/metalsmith-google-drive.svg)
 
-[metalsmith](metalsmith.io) to scrape files from google drive
+[metalsmith](https://metalsmith.io) to scrape files from google drive
 
 Highlights:
 
  * requests token authorisation via CLI
  * caches token and files, only requests changed files
  * no tests yet
- * Take a look at the [annotated source][1]
+
+
+See the [annotated source][1] or [github repo][4]
 
 ## install
 
@@ -47,11 +49,11 @@ Metalsmith('src')
 
 ### options
 
-Options object must contain:
-
- * `src` being the drive id of the parent folder you want to scrape
- * `dest` the path under which you want to place the scraped files in metalsmith
- * `auth` object containing `client_id`, `client_secret` and `redirect_uris`
+ * `src` {String} being the drive id of the parent folder you want to scrape
+ * `dest` {String} the path under which you want to place the scraped files in
+    metalsmith
+ * `auth` {Object} containing `client_id`, `client_secret` and `redirect_uris`
+ * `cache` {Boolean} (default: true) store files in cache
 
 ### notes
 
@@ -83,3 +85,4 @@ branch.
 [1]: https://leviwheatcroft.github.io/metalsmith-google-drive "fancy annotated source"
 [2]: https://developers.google.com/drive/v3/web/quickstart/nodejs "google drive nodejs quickstart"
 [3]: https://www.npmjs.com/package/config "config package on npm registry"
+[4]: https://github.com/leviwheatcroft/metalsmith-google-drive "github repo"

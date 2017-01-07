@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.plugin = undefined;
+exports.clearCache = exports.plugin = undefined;
 
 var _lodash = require('lodash');
 
@@ -37,6 +37,8 @@ var _googleAuthLibrary2 = _interopRequireDefault(_googleAuthLibrary);
 
 var _nodePersist = require('node-persist');
 
+var _nodePersist2 = _interopRequireDefault(_nodePersist);
+
 var _path = require('path');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -45,6 +47,7 @@ const dbg = (0, _debug2.default)('metalsmith-google-drive');
 const drive = _googleapis2.default.drive('v3');
 let oauth;
 let cache = true;
+let initialised = false;
 
 /**
  * ### default
@@ -68,8 +71,26 @@ function plugin(options) {
 
   return (files, metalsmith, done) => {
     dbg('starting');
-    return _vow2.default.resolve().then(() => (0, _nodePersist.init)()).then(() => _doAuth(options.auth)).then(() => _scrape(options.src, options.dest)).then(files => _getFiles(options.dest, files)).then(result => (0, _lodash.extend)(files, result)).then(() => (0, _nodePersist.setItemSync)('lastRun', new Date().toISOString())).catch(dbg).then(() => done());
+    return _vow2.default.resolve().then(() => _init()).then(() => _doAuth(options.auth)).then(() => _scrape(options.src, options.dest)).then(files => _getFiles(options.dest, files)).then(result => (0, _lodash.extend)(files, result)).then(() => _nodePersist2.default.setItemSync('lastRun', new Date().toISOString())).catch(dbg).then(() => done());
   };
+}
+/**
+ * ### _init
+ *
+ * initialise node-persist only once
+ */
+function _init() {
+  if (initialised) return;
+  initialised = true;
+  _nodePersist2.default.initSync();
+}
+
+function clearCache() {
+  let token;
+  _init();
+  token = _nodePersist2.default.getItemSync('token');
+  _nodePersist2.default.clearSync();
+  _nodePersist2.default.setItemSync('token', token);
 }
 
 /**
@@ -82,7 +103,7 @@ function plugin(options) {
 function _getFiles(dest, files) {
   let paths;
   // files arg contains only files downloaded this time, values contains all
-  if (cache) files = (0, _nodePersist.values)();
+  if (cache) files = _nodePersist2.default.values();
   // ignore non-file things we've stored
   files = (0, _lodash.filter)(files, 'id');
   dbg(`pushing ${ files.length } files to metalsmith`);
@@ -138,7 +159,7 @@ function _scrape(src) {
  * @param {Object} file
  */
 function _storeFile(file) {
-  if (cache) (0, _nodePersist.setItemSync)(file.id, file);
+  if (cache) _nodePersist2.default.setItemSync(file.id, file);
   return file;
 }
 /**
@@ -196,7 +217,7 @@ function _downloadFile(file) {
  */
 function _streamFiles(parent) {
   let pageToken = false;
-  let lastRun = (0, _nodePersist.getItemSync)('lastRun');
+  let lastRun = _nodePersist2.default.getItemSync('lastRun');
   let count = 0;
   return (0, _highland2.default)((push, next) => {
     const request = {};
@@ -215,7 +236,7 @@ function _streamFiles(parent) {
         // this is all we need to do to deal with deleted files
         if (file.trashed) {
           dbg(`ignoring trashed ${ file.name }`);
-          if (cache) (0, _nodePersist.removeItemSync)(file.id);
+          if (cache) _nodePersist2.default.removeItemSync(file.id);
         } else {
           // push / emit file to the highland stream
           push(null, file);
@@ -250,7 +271,7 @@ function _streamFiles(parent) {
 function _doAuth(auth) {
   const googleAuth = new _googleAuthLibrary2.default();
   oauth = new googleAuth.OAuth2(auth.client_id, auth.client_secret, auth.redirect_uris[0]);
-  return _vow2.default.resolve().then(() => (0, _nodePersist.getItemSync)('token') || _tokenFlow()).then(token => {
+  return _vow2.default.resolve().then(() => _nodePersist2.default.getItemSync('token') || _tokenFlow()).then(token => {
     oauth.credentials = token;
   });
 }
@@ -277,7 +298,7 @@ function _tokenFlow() {
     prompt.close();
     oauth.getToken(code, (err, result) => {
       if (err) defer.reject(err);else {
-        (0, _nodePersist.setItemSync)('token', result);
+        _nodePersist2.default.setItemSync('token', result);
         defer.resolve(result);
       }
     });
@@ -286,3 +307,4 @@ function _tokenFlow() {
 }
 exports.default = plugin;
 exports.plugin = plugin;
+exports.clearCache = clearCache;
