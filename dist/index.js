@@ -3,17 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-
-exports.default = function (options) {
-  if (!options) throw new Error('no options passed');
-  if (!options.src) throw new Error('required: options.src');
-  if (!options.dest) throw new Error('required: options.dest');
-  if (!options.auth) throw new Error('required: options.auth');
-
-  return (files, metalsmith, done) => {
-    return _vow2.default.resolve().then(() => (0, _nodePersist.init)()).then(() => _doAuth(options.auth)).then(() => _scrape(options.src, options.dest)).then(() => (0, _nodePersist.setItemSync)('lastRun', new Date().toISOString())).then(() => _getFiles(options.dest)).then(result => (0, _lodash.extend)(files, result)).catch(dbg).then(() => done());
-  };
-};
+exports.plugin = undefined;
 
 var _lodash = require('lodash');
 
@@ -54,6 +44,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 const dbg = (0, _debug2.default)('metalsmith-google-drive');
 const drive = _googleapis2.default.drive('v3');
 let oauth;
+let cache = true;
 
 /**
  * ### default
@@ -68,7 +59,18 @@ let oauth;
  * @param {String} options.auth.client_secret
  * @param {Array} options.auth.redirect_uris
  */
+function plugin(options) {
+  if (!options) throw new Error('no options passed');
+  if (!options.src) throw new Error('required: options.src');
+  if (!options.dest) throw new Error('required: options.dest');
+  if (!options.auth) throw new Error('required: options.auth');
+  if (options.cache !== undefined) cache = options.cache;
 
+  return (files, metalsmith, done) => {
+    dbg('starting');
+    return _vow2.default.resolve().then(() => (0, _nodePersist.init)()).then(() => _doAuth(options.auth)).then(() => _scrape(options.src, options.dest)).then(files => _getFiles(options.dest, files)).then(result => (0, _lodash.extend)(files, result)).then(() => (0, _nodePersist.setItemSync)('lastRun', new Date().toISOString())).catch(dbg).then(() => done());
+  };
+}
 
 /**
  * ### _getFiles
@@ -77,14 +79,15 @@ let oauth;
  *
  * @param {String} dest path under which to store files
  */
-function _getFiles(dest) {
-  let files;
+function _getFiles(dest, files) {
   let paths;
-  files = (0, _nodePersist.values)();
+  // files arg contains only files downloaded this time, values contains all
+  if (cache) files = (0, _nodePersist.values)();
   // ignore non-file things we've stored
   files = (0, _lodash.filter)(files, 'id');
+  dbg(`pushing ${ files.length } files to metalsmith`);
   files = (0, _lodash.map)(files, file => {
-    file.content = new Buffer(file.content);
+    file.contents = new Buffer(file.contents);
     return file;
   });
   paths = (0, _lodash.map)(files, file => (0, _path.join)(dest, file.name));
@@ -121,7 +124,9 @@ function _scrape(src) {
     return (0, _highland2.default)(_vow2.default.resolve(file).then(_downloadFile).then(_frontMatter).then(_storeFile).catch(dbg));
   })
   // artificial backpressure
-  .parallel(5).done(() => defer.resolve());
+  .parallel(5).toArray(files => {
+    defer.resolve(files);
+  });
   return defer.promise();
 }
 
@@ -133,7 +138,8 @@ function _scrape(src) {
  * @param {Object} file
  */
 function _storeFile(file) {
-  return (0, _nodePersist.setItemSync)(file.id, file);
+  if (cache) (0, _nodePersist.setItemSync)(file.id, file);
+  return file;
 }
 /**
  * ### _frontMatter
@@ -141,7 +147,11 @@ function _storeFile(file) {
  * @param {Object} file
  */
 function _frontMatter(file) {
-  return (0, _lodash.extend)(file, (0, _grayMatter2.default)(file.content).data);
+  let meta = (0, _grayMatter2.default)(file.contents).data;
+  if ((0, _lodash.keys)(meta).length === 0) {
+    return _vow2.default.reject(`no front matter? ${ file.name }`);
+  }
+  return (0, _lodash.extend)(file, meta);
 }
 
 /**
@@ -161,7 +171,7 @@ function _downloadFile(file) {
   }, (err, result) => {
     if (err) dbg('_downloadFileByMeta error: ', err);
     // note that at this point we just keep a string rather than a Buffer
-    file.content = result;
+    file.contents = result;
     // return the whole `file` object rather than just the content
     defer.resolve(file);
   });
@@ -187,26 +197,33 @@ function _downloadFile(file) {
 function _streamFiles(parent) {
   let pageToken = false;
   let lastRun = (0, _nodePersist.getItemSync)('lastRun');
+  let count = 0;
   return (0, _highland2.default)((push, next) => {
     const request = {};
 
     // build request object with query
     request.auth = oauth;
-    request.fields = 'files(id, name)';
-    request.q = (0, _lodash.compact)(['mimeType != "application/vnd.google-apps.folder"', `"${ parent }" in parents`, lastRun ? `modifiedTime > "${ lastRun }"` : false]).join(' and ');
+    request.fields = 'files(id, name, trashed)';
+    request.q = (0, _lodash.compact)(['mimeType != "application/vnd.google-apps.folder"', `"${ parent }" in parents`, lastRun && cache ? `modifiedTime > "${ lastRun }"` : false]).join(' and ');
     if (pageToken) request.pageToken = pageToken;
 
     // async api call, no need to promisify because we bat for both teams ?
     drive.files.list(request, (err, result) => {
       if (err) throw new Error(err);
+      count += result.files.length;
       (0, _lodash.each)(result.files, file => {
         // this is all we need to do to deal with deleted files
-        if (file.trashed) (0, _nodePersist.removeItemSync)(file.id);
-        // push / emit file to the highland stream
-        else push(null, file);
+        if (file.trashed) {
+          dbg(`ignoring trashed ${ file.name }`);
+          if (cache) (0, _nodePersist.removeItemSync)(file.id);
+        } else {
+          // push / emit file to the highland stream
+          push(null, file);
+        }
       });
       if (!result.nextPageToken) {
         // close highland stream with special `highland.nil`
+        dbg(`${ count } files to be updated`);
         push(null, _highland2.default.nil);
       } else {
         // indicate that more values can be retrieved
@@ -267,3 +284,5 @@ function _tokenFlow() {
   });
   return defer.promise();
 }
+exports.default = plugin;
+exports.plugin = plugin;
