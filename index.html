@@ -73,7 +73,7 @@
 
 <p><img src="https://img.shields.io/github/forks/leviwheatcroft/metalsmith-google-drive.svg" alt="forks" title="" /></p>
 
-<p><a href="metalsmith.io">metalsmith</a> to scrape files from google drive</p>
+<p><a href="https://metalsmith.io">metalsmith</a> to scrape files from google drive</p>
 
 <p>Highlights:</p>
 
@@ -81,8 +81,9 @@
 <li>requests token authorisation via CLI</li>
 <li>caches token and files, only requests changed files</li>
 <li>no tests yet</li>
-<li>Take a look at the <a href="https://leviwheatcroft.github.io/metalsmith-google-drive" title="fancy annotated source">annotated source</a></li>
 </ul>
+
+<p>See the <a href="https://leviwheatcroft.github.io/metalsmith-google-drive" title="fancy annotated source">annotated source</a> or <a href="https://github.com/leviwheatcroft/metalsmith-google-drive" title="github repo">github repo</a></p>
 
 
 <div class="pilwrap" id="install">
@@ -149,12 +150,12 @@ examples I'm using <a href="https://www.npmjs.com/package/config" title="config 
 </div>
 
 
-<p>Options object must contain:</p>
-
 <ul>
-<li><code>src</code> being the drive id of the parent folder you want to scrape</li>
-<li><code>dest</code> the path under which you want to place the scraped files in metalsmith</li>
-<li><code>auth</code> object containing <code>client_id</code>, <code>client_secret</code> and <code>redirect_uris</code></li>
+<li><code>src</code> {String} being the drive id of the parent folder you want to scrape</li>
+<li><code>dest</code> {String} the path under which you want to place the scraped files in
+metalsmith</li>
+<li><code>auth</code> {Object} containing <code>client_id</code>, <code>client_secret</code> and <code>redirect_uris</code></li>
+<li><code>cache</code> {Boolean} (default: true) store files in cache</li>
 </ul>
 
 
@@ -196,7 +197,7 @@ added directly to metalsmith <code>files</code> structure during build.</li>
 </div>
 
 
-<p>Levi Wheatcroft <a href="&#109;&#x61;&#x69;&#x6C;&#116;&#111;:&#108;&#x65;v&#105;&#x40;&#x77;&#104;&#116;&#x2E;&#99;&#114;">&#108;&#x65;v&#105;&#x40;&#x77;&#104;&#116;&#x2E;&#99;&#114;</a></p>
+<p>Levi Wheatcroft <a href="&#109;&#x61;&#x69;&#x6C;&#x74;&#x6F;:&#x6C;&#x65;&#x76;&#x69;&#64;&#119;&#104;&#x74;&#x2E;&#99;&#114;">&#x6C;&#x65;&#x76;&#x69;&#64;&#119;&#104;&#x74;&#x2E;&#99;&#114;</a></p>
 
 
 <div class="pilwrap" id="contributing">
