@@ -22,6 +22,9 @@
         <a href="#default">default</a>
       </div>
       <div class="heading h3">
+        <a href="#_init">_init</a>
+      </div>
+      <div class="heading h3">
         <a href="#_getfiles">_getFiles</a>
       </div>
       <div class="heading h3">
@@ -80,25 +83,7 @@
 <span class="kr">import</span> <span class="nx">highland</span> <span class="nx">from</span> <span class="s1">&#39;highland&#39;</span>
 <span class="kr">import</span> <span class="nx">google</span> <span class="nx">from</span> <span class="s1">&#39;googleapis&#39;</span>
 <span class="kr">import</span> <span class="nx">GoogleAuth</span> <span class="nx">from</span> <span class="s1">&#39;google-auth-library&#39;</span>
-<span class="kr">import</span> <span class="p">{</span>
-  <span class="nx">values</span><span class="p">,</span>
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
-</div>
-<p>clear,</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-  <span class="nx">init</span> <span class="nx">as</span> <span class="nx">persistInit</span><span class="p">,</span>
-  <span class="nx">setItemSync</span> <span class="nx">as</span> <span class="nx">setItem</span><span class="p">,</span>
-  <span class="nx">getItemSync</span> <span class="nx">as</span> <span class="nx">getItem</span><span class="p">,</span>
-  <span class="nx">removeItemSync</span> <span class="nx">as</span> <span class="nx">removeItem</span>
-<span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;node-persist&#39;</span>
+<span class="kr">import</span> <span class="nx">store</span> <span class="nx">from</span> <span class="s1">&#39;node-persist&#39;</span>
 <span class="kr">import</span> <span class="p">{</span>
   <span class="nx">join</span>
 <span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;path&#39;</span>
@@ -107,6 +92,7 @@
 <span class="kr">const</span> <span class="nx">drive</span> <span class="o">=</span> <span class="nx">google</span><span class="p">.</span><span class="nx">drive</span><span class="p">(</span><span class="s1">&#39;v3&#39;</span><span class="p">)</span>
 <span class="kd">let</span> <span class="nx">oauth</span>
 <span class="kd">let</span> <span class="nx">cache</span> <span class="o">=</span> <span class="kc">true</span>
+<span class="kd">let</span> <span class="nx">initialised</span> <span class="o">=</span> <span class="kc">false</span>
 
 
 </pre></div>
@@ -172,15 +158,48 @@
   <span class="k">return</span> <span class="p">(</span><span class="nx">files</span><span class="p">,</span> <span class="nx">metalsmith</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="nx">dbg</span><span class="p">(</span><span class="s1">&#39;starting&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="nx">vow</span><span class="p">.</span><span class="nx">resolve</span><span class="p">()</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">persistInit</span><span class="p">())</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">_init</span><span class="p">())</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">_doAuth</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">auth</span><span class="p">))</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">_scrape</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">src</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">dest</span><span class="p">))</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">files</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">_getFiles</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">files</span><span class="p">))</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">result</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">extend</span><span class="p">(</span><span class="nx">files</span><span class="p">,</span> <span class="nx">result</span><span class="p">))</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">setItem</span><span class="p">(</span><span class="s1">&#39;lastRun&#39;</span><span class="p">,</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">()))</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">store</span><span class="p">.</span><span class="nx">setItemSync</span><span class="p">(</span><span class="s1">&#39;lastRun&#39;</span><span class="p">,</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">()))</span>
     <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">dbg</span><span class="p">)</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">done</span><span class="p">())</span>
   <span class="p">}</span>
+<span class="p">}</span>
+
+</pre></div>
+        </td>
+      </tr>
+      <tr>
+        <td class="docs"><div class="dox">
+  <div class="summary">
+<div class="pilwrap" id="_init">
+  <h3>
+    <a href="#_init" name="_init" class="pilcrow">&#182;</a>
+    _init
+  </h3>
+</div>
+
+  </div>
+  <div class="body"><p>initialise node-persist only once</p>
+  </div>
+</div>
+        </td>
+        <td class="code highlight"><div class="highlight"><pre>
+<span class="kd">function</span> <span class="nx">_init</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">initialised</span><span class="p">)</span> <span class="k">return</span>
+  <span class="nx">initialised</span> <span class="o">=</span> <span class="kc">true</span>
+  <span class="nx">store</span><span class="p">.</span><span class="nx">initSync</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">clearCache</span> <span class="p">()</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">token</span>
+  <span class="nx">_init</span><span class="p">()</span>
+  <span class="nx">token</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">getItemSync</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">)</span>
+  <span class="nx">store</span><span class="p">.</span><span class="nx">clearSync</span><span class="p">()</span>
+  <span class="nx">store</span><span class="p">.</span><span class="nx">setItemSync</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="nx">token</span><span class="p">)</span>
 <span class="p">}</span>
 
 
@@ -225,7 +244,7 @@
 <p>files arg contains only files downloaded this time, values contains all</p>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">cache</span><span class="p">)</span> <span class="nx">files</span> <span class="o">=</span> <span class="nx">values</span><span class="p">()</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">cache</span><span class="p">)</span> <span class="nx">files</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">values</span><span class="p">()</span>
 
 </pre></div>
         </td>
@@ -377,7 +396,7 @@ stream.</li></ul></li>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
 <span class="kd">function</span> <span class="nx">_storeFile</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">cache</span><span class="p">)</span> <span class="nx">setItem</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">file</span><span class="p">)</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">cache</span><span class="p">)</span> <span class="nx">store</span><span class="p">.</span><span class="nx">setItemSync</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">file</span><span class="p">)</span>
   <span class="k">return</span> <span class="nx">file</span>
 <span class="p">}</span>
 
@@ -540,7 +559,7 @@ from the API and push each file onto the stream. if there's no
         <td class="code highlight"><div class="highlight"><pre>
 <span class="kd">function</span> <span class="nx">_streamFiles</span> <span class="p">(</span><span class="nx">parent</span><span class="p">)</span> <span class="p">{</span>
   <span class="kd">let</span> <span class="nx">pageToken</span> <span class="o">=</span> <span class="kc">false</span>
-  <span class="kd">let</span> <span class="nx">lastRun</span> <span class="o">=</span> <span class="nx">getItem</span><span class="p">(</span><span class="s1">&#39;lastRun&#39;</span><span class="p">)</span>
+  <span class="kd">let</span> <span class="nx">lastRun</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">getItemSync</span><span class="p">(</span><span class="s1">&#39;lastRun&#39;</span><span class="p">)</span>
   <span class="kd">let</span> <span class="nx">count</span> <span class="o">=</span> <span class="mi">0</span>
   <span class="k">return</span> <span class="nx">highland</span><span class="p">((</span><span class="nx">push</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="kr">const</span> <span class="nx">request</span> <span class="o">=</span> <span class="p">{}</span>
@@ -596,7 +615,7 @@ from the API and push each file onto the stream. if there's no
         <td class="code highlight"><div class="highlight"><pre>
         <span class="k">if</span> <span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">trashed</span><span class="p">)</span> <span class="p">{</span>
           <span class="nx">dbg</span><span class="p">(</span><span class="err">`</span><span class="nx">ignoring</span> <span class="nx">trashed</span> <span class="nx">$</span><span class="p">{</span><span class="nx">file</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="err">`</span><span class="p">)</span>
-          <span class="k">if</span> <span class="p">(</span><span class="nx">cache</span><span class="p">)</span> <span class="nx">removeItem</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nx">cache</span><span class="p">)</span> <span class="nx">store</span><span class="p">.</span><span class="nx">removeItemSync</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
         <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
 
 </pre></div>
@@ -690,7 +709,7 @@ from the API and push each file onto the stream. if there's no
     <span class="nx">auth</span><span class="p">.</span><span class="nx">redirect_uris</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
   <span class="p">)</span>
   <span class="k">return</span> <span class="nx">vow</span><span class="p">.</span><span class="nx">resolve</span><span class="p">()</span>
-  <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">getItem</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">)</span> <span class="o">||</span> <span class="nx">_tokenFlow</span><span class="p">())</span>
+  <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">store</span><span class="p">.</span><span class="nx">getItemSync</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">)</span> <span class="o">||</span> <span class="nx">_tokenFlow</span><span class="p">())</span>
   <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">token</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="nx">oauth</span><span class="p">.</span><span class="nx">credentials</span> <span class="o">=</span> <span class="nx">token</span>
   <span class="p">})</span>
@@ -734,7 +753,7 @@ this fn prints the auth url, which gives the user a code to paste back in</p>
     <span class="nx">oauth</span><span class="p">.</span><span class="nx">getToken</span><span class="p">(</span><span class="nx">code</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
       <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="nx">defer</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
       <span class="k">else</span> <span class="p">{</span>
-        <span class="nx">setItem</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span>
+        <span class="nx">store</span><span class="p">.</span><span class="nx">setItemSync</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span>
         <span class="nx">defer</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
       <span class="p">}</span>
     <span class="p">})</span>
@@ -743,7 +762,7 @@ this fn prints the auth url, which gives the user a code to paste back in</p>
 <span class="p">}</span>
 <span class="kr">export</span> <span class="k">default</span> <span class="nx">plugin</span>
 <span class="kr">export</span> <span class="p">{</span>
-  <span class="nx">plugin</span>
+  <span class="nx">plugin</span><span class="p">,</span> <span class="nx">clearCache</span>
 <span class="p">}</span>
 </pre></div>
         </td>
