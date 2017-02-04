@@ -41,6 +41,7 @@
     "googleapis": "^16.0.0",
     "gray-matter": "^2.1.0",
     "highland": "^2.10.1",
+    "hjson": "^2.4.1",
     "lodash": "^4.16.4",
     "metalsmith": "^2.2.0",
     "moment": "^2.17.1",
@@ -67,9 +68,11 @@
     "gh-pages": "^0.12.0",
     "mocha": "^3.1.2",
     "mocha-eslint": "^3.0.1",
+    "nock": "^9.0.2",
     "node-readme": "^0.1.9",
     "node-resemble-js": "^0.1.1",
-    "nyc": "^8.3.1"
+    "nyc": "^8.3.1",
+    "sinon": "^1.17.7"
   },
   "eslintConfig": {
     "parser": "babel-eslint",

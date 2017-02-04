@@ -70,8 +70,10 @@ function plugin(options) {
   if (options.cache !== undefined) cache = options.cache;
 
   return (files, metalsmith, done) => {
-    dbg('starting');
-    return _vow2.default.resolve().then(() => _init()).then(() => _doAuth(options.auth)).then(() => _scrape(options.src, options.dest)).then(files => _getFiles(options.dest, files)).then(result => (0, _lodash.extend)(files, result)).then(() => _nodePersist2.default.setItemSync('lastRun', new Date().toISOString())).catch(dbg).then(() => done());
+    dbg('waiting for auth (sorry!)');
+    return _vow2.default.resolve().then(() => _init()).then(() => _doAuth(options.auth)).then(() => _scrape(options.src, options.dest)).then(files => _getFiles(options.dest, files)).then(result => Object.assign(files, result)).then(() => _nodePersist2.default.setItemSync('lastRun', new Date().toISOString())).catch(dbg).then(() => {
+      done();
+    });
   };
 }
 /**
@@ -82,7 +84,11 @@ function plugin(options) {
 function _init() {
   if (initialised) return;
   initialised = true;
-  _nodePersist2.default.initSync();
+  _nodePersist2.default.initSync({
+    continuous: true,
+    interval: false,
+    expiredInterval: false
+  });
 }
 
 function clearCache() {
@@ -106,7 +112,7 @@ function _getFiles(dest, files) {
   if (cache) files = _nodePersist2.default.values();
   // ignore non-file things we've stored
   files = (0, _lodash.filter)(files, 'id');
-  dbg(`pushing ${ files.length } files to metalsmith`);
+  dbg(`got ${ files.length } files`);
   files = (0, _lodash.map)(files, file => {
     file.contents = new Buffer(file.contents);
     return file;
@@ -168,11 +174,13 @@ function _storeFile(file) {
  * @param {Object} file
  */
 function _frontMatter(file) {
-  let meta = (0, _grayMatter2.default)(file.contents).data;
+  let meta = (0, _grayMatter2.default)(file.contents);
   if ((0, _lodash.keys)(meta).length === 0) {
     return _vow2.default.reject(`no front matter? ${ file.name }`);
   }
-  return (0, _lodash.extend)(file, meta);
+  Object.assign(file, { contents: meta.content }, meta.data);
+
+  return file;
 }
 
 /**
@@ -190,7 +198,7 @@ function _downloadFile(file) {
     // `alt: 'media'` triggers file download rather than just meta
     alt: 'media'
   }, (err, result) => {
-    if (err) dbg('_downloadFileByMeta error: ', err);
+    if (err) return defer.reject(err);
     // note that at this point we just keep a string rather than a Buffer
     file.contents = result;
     // return the whole `file` object rather than just the content
@@ -252,7 +260,7 @@ function _streamFiles(parent) {
         next();
       }
     });
-  });
+  }); // .done(() => dbg('streamFiles done'))
 }
 
 /**
@@ -272,8 +280,9 @@ function _doAuth(auth) {
   const googleAuth = new _googleAuthLibrary2.default();
   oauth = new googleAuth.OAuth2(auth.client_id, auth.client_secret, auth.redirect_uris[0]);
   return _vow2.default.resolve().then(() => _nodePersist2.default.getItemSync('token') || _tokenFlow()).then(token => {
+    dbg(token);
     oauth.credentials = token;
-  });
+  }).catch(err => dbg(err));
 }
 
 /**
@@ -297,7 +306,11 @@ function _tokenFlow() {
   prompt.question('Enter the code from that page here: ', code => {
     prompt.close();
     oauth.getToken(code, (err, result) => {
-      if (err) defer.reject(err);else {
+      dbg('got token');
+      if (err) {
+        dbg(err);
+        defer.reject(err);
+      } else {
         _nodePersist2.default.setItemSync('token', result);
         defer.resolve(result);
       }

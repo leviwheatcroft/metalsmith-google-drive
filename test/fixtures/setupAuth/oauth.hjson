@@ -1,0 +1,13 @@
+{
+  "transporter": {},
+  "clientId_": "527245197708-ov8sqqdfmo14a02hq2dc9pr7snp513r2.apps.googleusercontent.com",
+  "clientSecret_": "DM9ccOH9leNJB_4EEiy_p3ij",
+  "redirectUri_": "urn:ietf:wg:oauth:2.0:oob",
+  "opts": {},
+  "credentials": {
+    "access_token": "dummyToken",
+    "refresh_token": "dummyToken",
+    "token_type": "Bearer",
+    "expiry_date": 1484648676567
+  }
+}
