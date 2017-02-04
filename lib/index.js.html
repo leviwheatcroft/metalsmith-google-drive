@@ -69,7 +69,6 @@
         </td>
         <td class="code highlight"><div class="highlight"><pre><span class="kr">import</span> <span class="p">{</span>
   <span class="nx">compact</span><span class="p">,</span>
-  <span class="nx">extend</span><span class="p">,</span>
   <span class="nx">each</span><span class="p">,</span>
   <span class="nx">map</span><span class="p">,</span>
   <span class="nx">keys</span><span class="p">,</span>
@@ -156,16 +155,18 @@
   <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">cache</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">)</span> <span class="nx">cache</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">cache</span>
 
   <span class="k">return</span> <span class="p">(</span><span class="nx">files</span><span class="p">,</span> <span class="nx">metalsmith</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="nx">dbg</span><span class="p">(</span><span class="s1">&#39;starting&#39;</span><span class="p">)</span>
+    <span class="nx">dbg</span><span class="p">(</span><span class="s1">&#39;waiting for auth (sorry!)&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="nx">vow</span><span class="p">.</span><span class="nx">resolve</span><span class="p">()</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">_init</span><span class="p">())</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">_doAuth</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">auth</span><span class="p">))</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">_scrape</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">src</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">dest</span><span class="p">))</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">files</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">_getFiles</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">files</span><span class="p">))</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">result</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">extend</span><span class="p">(</span><span class="nx">files</span><span class="p">,</span> <span class="nx">result</span><span class="p">))</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">result</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span><span class="nx">files</span><span class="p">,</span> <span class="nx">result</span><span class="p">))</span>
     <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">store</span><span class="p">.</span><span class="nx">setItemSync</span><span class="p">(</span><span class="s1">&#39;lastRun&#39;</span><span class="p">,</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">()))</span>
     <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">dbg</span><span class="p">)</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">done</span><span class="p">())</span>
+    <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">done</span><span class="p">()</span>
+    <span class="p">})</span>
   <span class="p">}</span>
 <span class="p">}</span>
 
@@ -191,7 +192,11 @@
 <span class="kd">function</span> <span class="nx">_init</span> <span class="p">()</span> <span class="p">{</span>
   <span class="k">if</span> <span class="p">(</span><span class="nx">initialised</span><span class="p">)</span> <span class="k">return</span>
   <span class="nx">initialised</span> <span class="o">=</span> <span class="kc">true</span>
-  <span class="nx">store</span><span class="p">.</span><span class="nx">initSync</span><span class="p">()</span>
+  <span class="nx">store</span><span class="p">.</span><span class="nx">initSync</span><span class="p">({</span>
+    <span class="nx">continuous</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">interval</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">expiredInterval</span><span class="o">:</span> <span class="kc">false</span>
+  <span class="p">})</span>
 <span class="p">}</span>
 
 <span class="kd">function</span> <span class="nx">clearCache</span> <span class="p">()</span> <span class="p">{</span>
@@ -258,7 +263,7 @@
         </td>
         <td class="code highlight"><div class="highlight"><pre>
   <span class="nx">files</span> <span class="o">=</span> <span class="nx">filter</span><span class="p">(</span><span class="nx">files</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">)</span>
-  <span class="nx">dbg</span><span class="p">(</span><span class="err">`</span><span class="nx">pushing</span> <span class="nx">$</span><span class="p">{</span><span class="nx">files</span><span class="p">.</span><span class="nx">length</span><span class="p">}</span> <span class="nx">files</span> <span class="nx">to</span> <span class="nx">metalsmith</span><span class="err">`</span><span class="p">)</span>
+  <span class="nx">dbg</span><span class="p">(</span><span class="err">`</span><span class="nx">got</span> <span class="nx">$</span><span class="p">{</span><span class="nx">files</span><span class="p">.</span><span class="nx">length</span><span class="p">}</span> <span class="nx">files</span><span class="err">`</span><span class="p">)</span>
   <span class="nx">files</span> <span class="o">=</span> <span class="nx">map</span><span class="p">(</span><span class="nx">files</span><span class="p">,</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="nx">file</span><span class="p">.</span><span class="nx">contents</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">contents</span><span class="p">)</span>
     <span class="k">return</span> <span class="nx">file</span>
@@ -428,11 +433,17 @@ stream.</li></ul></li>
         </td>
         <td class="code highlight"><div class="highlight"><pre>
 <span class="kd">function</span> <span class="nx">_frontMatter</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">let</span> <span class="nx">meta</span> <span class="o">=</span> <span class="nx">matter</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">contents</span><span class="p">).</span><span class="nx">data</span>
+  <span class="kd">let</span> <span class="nx">meta</span> <span class="o">=</span> <span class="nx">matter</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">contents</span><span class="p">)</span>
   <span class="k">if</span> <span class="p">(</span><span class="nx">keys</span><span class="p">(</span><span class="nx">meta</span><span class="p">).</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">return</span> <span class="nx">vow</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="err">`</span><span class="nx">no</span> <span class="nx">front</span> <span class="nx">matter</span><span class="o">?</span> <span class="nx">$</span><span class="p">{</span><span class="nx">file</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="err">`</span><span class="p">)</span>
   <span class="p">}</span>
-  <span class="k">return</span> <span class="nx">extend</span><span class="p">(</span><span class="nx">file</span><span class="p">,</span> <span class="nx">meta</span><span class="p">)</span>
+  <span class="nb">Object</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span>
+    <span class="nx">file</span><span class="p">,</span>
+    <span class="p">{</span> <span class="nx">contents</span><span class="o">:</span> <span class="nx">meta</span><span class="p">.</span><span class="nx">content</span> <span class="p">},</span>
+    <span class="nx">meta</span><span class="p">.</span><span class="nx">data</span>
+  <span class="p">)</span>
+
+  <span class="k">return</span> <span class="nx">file</span>
 <span class="p">}</span>
 
 
@@ -486,7 +497,7 @@ stream.</li></ul></li>
       <span class="nx">alt</span><span class="o">:</span> <span class="s1">&#39;media&#39;</span>
     <span class="p">},</span>
     <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="nx">dbg</span><span class="p">(</span><span class="s1">&#39;_downloadFileByMeta error: &#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">defer</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
 
 </pre></div>
         </td>
@@ -664,7 +675,7 @@ from the API and push each file onto the stream. if there's no
         <span class="nx">next</span><span class="p">()</span>
       <span class="p">}</span>
     <span class="p">})</span>
-  <span class="p">})</span>
+  <span class="p">})</span> <span class="c1">// .done(() =&gt; dbg(&#39;streamFiles done&#39;))</span>
 <span class="p">}</span>
 
 
@@ -711,8 +722,10 @@ from the API and push each file onto the stream. if there's no
   <span class="k">return</span> <span class="nx">vow</span><span class="p">.</span><span class="nx">resolve</span><span class="p">()</span>
   <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">store</span><span class="p">.</span><span class="nx">getItemSync</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">)</span> <span class="o">||</span> <span class="nx">_tokenFlow</span><span class="p">())</span>
   <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">token</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">dbg</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
     <span class="nx">oauth</span><span class="p">.</span><span class="nx">credentials</span> <span class="o">=</span> <span class="nx">token</span>
   <span class="p">})</span>
+  <span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">err</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">dbg</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span>
 <span class="p">}</span>
 
 
@@ -751,8 +764,11 @@ this fn prints the auth url, which gives the user a code to paste back in</p>
   <span class="nx">prompt</span><span class="p">.</span><span class="nx">question</span><span class="p">(</span><span class="s1">&#39;Enter the code from that page here: &#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">code</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="nx">prompt</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span>
     <span class="nx">oauth</span><span class="p">.</span><span class="nx">getToken</span><span class="p">(</span><span class="nx">code</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="nx">defer</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-      <span class="k">else</span> <span class="p">{</span>
+      <span class="nx">dbg</span><span class="p">(</span><span class="s1">&#39;got token&#39;</span><span class="p">)</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">dbg</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+        <span class="nx">defer</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
         <span class="nx">store</span><span class="p">.</span><span class="nx">setItemSync</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span>
         <span class="nx">defer</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
       <span class="p">}</span>
@@ -762,7 +778,8 @@ this fn prints the auth url, which gives the user a code to paste back in</p>
 <span class="p">}</span>
 <span class="kr">export</span> <span class="k">default</span> <span class="nx">plugin</span>
 <span class="kr">export</span> <span class="p">{</span>
-  <span class="nx">plugin</span><span class="p">,</span> <span class="nx">clearCache</span>
+  <span class="nx">plugin</span><span class="p">,</span>
+  <span class="nx">clearCache</span>
 <span class="p">}</span>
 </pre></div>
         </td>
