@@ -70,8 +70,8 @@ function plugin(options) {
   if (options.cache !== undefined) cache = options.cache;
 
   return (files, metalsmith, done) => {
-    dbg('waiting for auth (sorry!)');
-    return _vow2.default.resolve().then(() => _init()).then(() => _doAuth(options.auth)).then(() => _scrape(options.src, options.dest)).then(files => _getFiles(options.dest, files)).then(result => Object.assign(files, result)).then(() => _nodePersist2.default.setItemSync('lastRun', new Date().toISOString())).catch(dbg).then(() => {
+    dbg('doing oAuth2');
+    return _vow2.default.resolve().then(() => _init()).then(() => _doAuth(options.auth)).then(() => _scrape(options.src)).then(files => _getFiles(options.dest, files)).then(result => Object.assign(files, result)).then(() => _nodePersist2.default.setItemSync('lastRun', new Date().toISOString())).catch(dbg).then(() => {
       done();
     });
   };
@@ -144,6 +144,7 @@ function _getFiles(dest, files) {
  * @param {string} src google drive parent folder id
  */
 function _scrape(src) {
+  dbg('scrape', src);
   const defer = _vow2.default.defer();
   // returns a highland stream
   _streamFiles(src).map(file => {

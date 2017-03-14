@@ -4,3 +4,4 @@ test/fixtures/*/build
 .node-persist
 coverage
 docs
+.store
