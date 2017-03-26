@@ -8,4 +8,5 @@ docs
 config/local.js
 npm-debug.log
 
-dist
+lib
+test
