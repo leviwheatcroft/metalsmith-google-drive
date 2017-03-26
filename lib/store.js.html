@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>store.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../";
+    var thisFile = "lib/store.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+      <div class="heading h3">
+        <a href="#params">params</a>
+      </div>
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>store.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">import</span> persist <span class="hljs-keyword">from</span> <span class="hljs-string">'node-persist'</span>
+<span class="hljs-keyword">import</span> debug <span class="hljs-keyword">from</span> <span class="hljs-string">'debug'</span>
+<span class="hljs-keyword">import</span> { join } <span class="hljs-keyword">from</span> <span class="hljs-string">'path'</span>
+<span class="hljs-keyword">import</span> {
+  readFileSync <span class="hljs-keyword">as</span> readFile
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'fs'</span>
+
+<span class="hljs-keyword">const</span> dbg = debug(<span class="hljs-string">'metalsmith-google-drive'</span>)
+<span class="hljs-keyword">const</span> rootDir = <span class="hljs-string">'.store'</span>
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<p>if (!exists(rootDir)) mkdir(rootDir)</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">if</span> (!<span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(rootDir).exec(readFile(<span class="hljs-string">'.gitignore'</span>).toString())) {
+  dbg(<span class="hljs-string">`WARN: you probably want to .gitignore the <span class="hljs-subst">${rootDir}</span> folder`</span>)
+}
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Store</span> </span>{
+  <span class="hljs-keyword">constructor</span> (id) {
+    <span class="hljs-keyword">if</span> (!id) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Store constructor: id required'</span>)
+    <span class="hljs-keyword">this</span>.id = id
+    <span class="hljs-keyword">this</span>.name = <span class="hljs-keyword">this</span>.id.slice(<span class="hljs-number">-8</span>)
+    dbg(<span class="hljs-string">`instantiating store at <span class="hljs-subst">${join(rootDir, <span class="hljs-keyword">this</span>.name)}</span>`</span>)
+    <span class="hljs-keyword">this</span>.persist = persist.create({
+      <span class="hljs-attr">dir</span>: join(rootDir, <span class="hljs-keyword">this</span>.name),
+      <span class="hljs-attr">continuous</span>: <span class="hljs-literal">true</span>,
+      <span class="hljs-attr">interval</span>: <span class="hljs-literal">false</span>,
+      <span class="hljs-attr">expiredInterval</span>: <span class="hljs-literal">false</span>
+    })
+    <span class="hljs-keyword">this</span>.persist.initSync()
+  }
+  getResources (dest = <span class="hljs-string">''</span>) {
+    <span class="hljs-keyword">const</span> items = {}
+    <span class="hljs-keyword">this</span>.persist.forEach(<span class="hljs-function">(<span class="hljs-params">key, value</span>) =&gt;</span> {
+      items[join(dest, value.name)] = value
+    })
+    <span class="hljs-keyword">return</span> items
+  }
+  getResource (key) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.persist.getItemSync(key)
+  }
+  setResources (items) {
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> k <span class="hljs-keyword">in</span> items) <span class="hljs-keyword">this</span>.persist.setItemSync(k, items[k])
+  }
+  setResource (key, item) {
+    <span class="hljs-keyword">this</span>.persist.setItemSync(key, item)
+  }
+  removeResource (key) {
+    <span class="hljs-keyword">this</span>.persist.removeItemSync(key)
+  }
+  invalidate () {
+    <span class="hljs-keyword">this</span>.persist.clearSync()
+  }
+}
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="dox">
+<div class="summary">
+<div class="pilwrap" id="params">
+  <h3>
+    <a href="#params" name="params" class="pilcrow"></a>
+params
+  </h3>
+</div>
+</div>
+<div class="body">
+<p>I thought about using ES6 style getters and setters here but that would only
+be possible for the <code>token</code> resource, and I decided against it because it's
+more consistent with the other properties just to use the old style.</p>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Params</span> </span>{
+  <span class="hljs-keyword">constructor</span> () {
+    dbg(<span class="hljs-string">`instantiating store at <span class="hljs-subst">${join(rootDir, <span class="hljs-string">'params'</span>)}</span>`</span>)
+    <span class="hljs-keyword">this</span>.persist = persist.create({
+      <span class="hljs-attr">dir</span>: join(rootDir, <span class="hljs-string">'google-drive-params'</span>),
+      <span class="hljs-attr">continuous</span>: <span class="hljs-literal">true</span>,
+      <span class="hljs-attr">interval</span>: <span class="hljs-literal">false</span>,
+      <span class="hljs-attr">expiredInterval</span>: <span class="hljs-literal">false</span>
+    })
+    <span class="hljs-keyword">this</span>.persist.initSync()
+  }
+  getLastRun (folder) {
+    <span class="hljs-keyword">const</span> key = <span class="hljs-string">`lastRun<span class="hljs-subst">${folder.store.name}</span>`</span>
+    <span class="hljs-keyword">const</span> value = <span class="hljs-keyword">this</span>.persist.getItemSync(key)
+    dbg(<span class="hljs-string">`<span class="hljs-subst">${key}</span> was <span class="hljs-subst">${value}</span>`</span>)
+    <span class="hljs-keyword">return</span> value
+  }
+  setLastRun (folder, value) {
+    <span class="hljs-keyword">const</span> key = <span class="hljs-string">`lastRun<span class="hljs-subst">${folder.store.name}</span>`</span>
+    value = value === <span class="hljs-literal">false</span> ? <span class="hljs-literal">false</span> : value || <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>().toISOString()
+    <span class="hljs-keyword">this</span>.persist.setItemSync(key, value)
+  }
+  getToken () {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.persist.getItemSync(<span class="hljs-string">'token'</span>)
+  }
+  setToken (token) {
+    <span class="hljs-keyword">this</span>.persist.setItemSync(<span class="hljs-string">'token'</span>, token)
+  }
+  invalidate (keepToken = <span class="hljs-literal">true</span>) {
+    <span class="hljs-keyword">const</span> token = <span class="hljs-keyword">this</span>.persist.getItemSync(<span class="hljs-string">'token'</span>)
+    <span class="hljs-keyword">this</span>.persist.clearSync()
+    <span class="hljs-keyword">if</span> (keepToken) <span class="hljs-keyword">this</span>.persist.setItemSync(<span class="hljs-string">'token'</span>, token)
+  }
+}
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-4" id="section-4"></a>
+</div>
+<p>export singleton</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">const</span> params = <span class="hljs-keyword">new</span> Params()
+
+<span class="hljs-keyword">export</span> {
+  Store,
+  params
+}
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

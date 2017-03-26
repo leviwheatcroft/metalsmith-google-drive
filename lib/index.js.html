@@ -6,9 +6,12 @@
   <link rel="stylesheet" media="all" href="../doc-style.css" />
   <script src="../doc-filelist.js"></script>
   <script>
-    var relativeDir = "../", thisFile = "lib/index.js", defaultSidebar = true;
+    var relativeDir = "../";
+    var thisFile = "lib/index.js";
+    var defaultSidebar = true;
   </script>
   <script src="../doc-script.js"></script>
+
 </head>
 <body>
   <div id="sidebar_wrapper">
@@ -18,284 +21,211 @@
     </div>
     <div id="tree"></div>
     <div id="headings">
+
       <div class="heading h3">
         <a href="#default">default</a>
       </div>
-      <div class="heading h3">
-        <a href="#_init">_init</a>
-      </div>
-      <div class="heading h3">
-        <a href="#_getfiles">_getFiles</a>
-      </div>
+
       <div class="heading h3">
         <a href="#_scrape">_scrape</a>
       </div>
+
       <div class="heading h3">
-        <a href="#_storefile">_storeFile</a>
+        <a href="#streamfiles">streamFiles</a>
       </div>
+
       <div class="heading h3">
-        <a href="#_frontmatter">_frontMatter</a>
+        <a href="#downloadfile">downloadFile</a>
       </div>
+
       <div class="heading h3">
-        <a href="#_downloadfilebymeta">_downloadFileByMeta</a>
+        <a href="#frontmatter">frontMatter</a>
       </div>
+
       <div class="heading h3">
-        <a href="#_streamfilemeta">_streamFileMeta</a>
+        <a href="#storefile">storeFile</a>
       </div>
+
+      <div class="heading h3">
+        <a href="#_getfiles">_getFiles</a>
+      </div>
+
       <div class="heading h3">
         <a href="#_doauth">_doAuth</a>
       </div>
+
       <div class="heading h3">
         <a href="#_tokenflow">_tokenFlow</a>
       </div>
+
     </div>
   </div>
   <div id="sidebar-toggle"></div>
-  <div id="container"><div class="background highlight"></div>
+  <div id="container">
+    <div class="background highlight"></div>
 <table cellpadding="0" cellspacing="0">
   <tbody>
+    
       <tr>
         <td class="docs">
           <h1>index.js</h1>
         </td>
         <td class="code highlight"></td>
       </tr>
+    
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
 </div>
 
         </td>
-        <td class="code highlight"><div class="highlight"><pre><span class="kr">import</span> <span class="p">{</span>
-  <span class="nx">compact</span><span class="p">,</span>
-  <span class="nx">each</span><span class="p">,</span>
-  <span class="nx">map</span><span class="p">,</span>
-  <span class="nx">keys</span><span class="p">,</span>
-  <span class="nx">filter</span><span class="p">,</span>
-  <span class="nx">zipObject</span>
-<span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;lodash&#39;</span>
-<span class="kr">import</span> <span class="nx">debug</span> <span class="nx">from</span> <span class="s1">&#39;debug&#39;</span>
-<span class="kr">import</span> <span class="nx">vow</span> <span class="nx">from</span> <span class="s1">&#39;vow&#39;</span>
-<span class="kr">import</span> <span class="nx">matter</span> <span class="nx">from</span> <span class="s1">&#39;gray-matter&#39;</span>
-<span class="kr">import</span> <span class="nx">readline</span> <span class="nx">from</span> <span class="s1">&#39;readline&#39;</span>
-<span class="kr">import</span> <span class="nx">highland</span> <span class="nx">from</span> <span class="s1">&#39;highland&#39;</span>
-<span class="kr">import</span> <span class="nx">google</span> <span class="nx">from</span> <span class="s1">&#39;googleapis&#39;</span>
-<span class="kr">import</span> <span class="nx">GoogleAuth</span> <span class="nx">from</span> <span class="s1">&#39;google-auth-library&#39;</span>
-<span class="kr">import</span> <span class="nx">store</span> <span class="nx">from</span> <span class="s1">&#39;node-persist&#39;</span>
-<span class="kr">import</span> <span class="p">{</span>
-  <span class="nx">join</span>
-<span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;path&#39;</span>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">import</span> {
+  compact,
+  each,
+  keys
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'lodash'</span>
+<span class="hljs-keyword">import</span> debug <span class="hljs-keyword">from</span> <span class="hljs-string">'debug'</span>
+<span class="hljs-keyword">import</span> vow <span class="hljs-keyword">from</span> <span class="hljs-string">'vow'</span>
+<span class="hljs-keyword">import</span> matter <span class="hljs-keyword">from</span> <span class="hljs-string">'gray-matter'</span>
+<span class="hljs-keyword">import</span> readline <span class="hljs-keyword">from</span> <span class="hljs-string">'readline'</span>
+<span class="hljs-keyword">import</span> highland <span class="hljs-keyword">from</span> <span class="hljs-string">'highland'</span>
+<span class="hljs-keyword">import</span> google <span class="hljs-keyword">from</span> <span class="hljs-string">'googleapis'</span>
+<span class="hljs-keyword">import</span> GoogleAuth <span class="hljs-keyword">from</span> <span class="hljs-string">'google-auth-library'</span>
+<span class="hljs-keyword">import</span> { join } <span class="hljs-keyword">from</span> <span class="hljs-string">'path'</span>
+<span class="hljs-keyword">import</span> {
+  Store,
+  params
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'./store'</span>
 
-<span class="kr">const</span> <span class="nx">dbg</span> <span class="o">=</span> <span class="nx">debug</span><span class="p">(</span><span class="s1">&#39;metalsmith-google-drive&#39;</span><span class="p">)</span>
-<span class="kr">const</span> <span class="nx">drive</span> <span class="o">=</span> <span class="nx">google</span><span class="p">.</span><span class="nx">drive</span><span class="p">(</span><span class="s1">&#39;v3&#39;</span><span class="p">)</span>
-<span class="kd">let</span> <span class="nx">oauth</span>
-<span class="kd">let</span> <span class="nx">cache</span> <span class="o">=</span> <span class="kc">true</span>
-<span class="kd">let</span> <span class="nx">initialised</span> <span class="o">=</span> <span class="kc">false</span>
+<span class="hljs-keyword">const</span> dbg = debug(<span class="hljs-string">'metalsmith-google-drive'</span>)
+<span class="hljs-keyword">const</span> drive = google.drive(<span class="hljs-string">'v3'</span>)
+<span class="hljs-keyword">let</span> oauth
 
-
-</pre></div>
+</pre>
         </td>
       </tr>
+    
       <tr>
-        <td class="docs"><div class="dox">
-  <div class="summary">
+        <td class="docs">
+          <div class="dox">
+<div class="summary">
 <div class="pilwrap" id="default">
   <h3>
-    <a href="#default" name="default" class="pilcrow">&#182;</a>
-    default
+    <a href="#default" name="default" class="pilcrow"></a>
+default
   </h3>
 </div>
-
-  </div>
-  <div class="body"><p>see README.md re: auth properties</p>
-  </div>
-  <div class="details">
-    <div class="dox_tag_title">Params</div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">options</span>
-      <span class="dox_type">Object</span>
-    </div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">options.src</span>
-      <span class="dox_type">String</span>
-      <span>google drive parent id folder</span>
-    </div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">options.dest</span>
-      <span class="dox_type">String</span>
-      <span>path under which to place files for metalsmith</span>
-    </div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">options.auth</span>
-      <span class="dox_type">Object</span>
-    </div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">options.auth.client_id</span>
-      <span class="dox_type">String</span>
-    </div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">options.auth.client_secret</span>
-      <span class="dox_type">String</span>
-    </div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">options.auth.redirect_uris
+</div>
+<div class="body">
+<p>see README.md re: auth properties</p>
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">options</span>
+<span class="dox_type">Object</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">options.src</span>
+<span class="dox_type">String</span>
+<span>google drive parent id folder
 </span>
-      <span class="dox_type">Array</span>
-    </div>
-  </div>
 </div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">options.dest</span>
+<span class="dox_type">String</span>
+<span>path under which to place files for metalsmith
+</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">options.auth</span>
+<span class="dox_type">Object</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">options.auth.client_id</span>
+<span class="dox_type">String</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">options.auth.client_secret</span>
+<span class="dox_type">String</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">options.auth.redirect_uris</span>
+<span class="dox_type">Array</span>
+</div>
+</div>
+</div>
+
         </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kd">function</span> <span class="nx">plugin</span> <span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">options</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;no options passed&#39;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">options</span><span class="p">.</span><span class="nx">src</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;required: options.src&#39;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">options</span><span class="p">.</span><span class="nx">dest</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;required: options.dest&#39;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">options</span><span class="p">.</span><span class="nx">auth</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;required: options.auth&#39;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">cache</span> <span class="o">!==</span> <span class="kc">undefined</span><span class="p">)</span> <span class="nx">cache</span> <span class="o">=</span> <span class="nx">options</span><span class="p">.</span><span class="nx">cache</span>
-
-  <span class="k">return</span> <span class="p">(</span><span class="nx">files</span><span class="p">,</span> <span class="nx">metalsmith</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="nx">dbg</span><span class="p">(</span><span class="s1">&#39;waiting for auth (sorry!)&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nx">vow</span><span class="p">.</span><span class="nx">resolve</span><span class="p">()</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">_init</span><span class="p">())</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">_doAuth</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">auth</span><span class="p">))</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">_scrape</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">src</span><span class="p">,</span> <span class="nx">options</span><span class="p">.</span><span class="nx">dest</span><span class="p">))</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">files</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">_getFiles</span><span class="p">(</span><span class="nx">options</span><span class="p">.</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">files</span><span class="p">))</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">result</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nb">Object</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span><span class="nx">files</span><span class="p">,</span> <span class="nx">result</span><span class="p">))</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">store</span><span class="p">.</span><span class="nx">setItemSync</span><span class="p">(</span><span class="s1">&#39;lastRun&#39;</span><span class="p">,</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">().</span><span class="nx">toISOString</span><span class="p">()))</span>
-    <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">dbg</span><span class="p">)</span>
-    <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-      <span class="nx">done</span><span class="p">()</span>
-    <span class="p">})</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-
-</pre></div>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">plugin</span> (<span class="hljs-params">options</span>) </span>{
+  <span class="hljs-keyword">if</span> (!options) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'no options passed'</span>)
+  <span class="hljs-keyword">if</span> (!options.src) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'required: options.src'</span>)
+  <span class="hljs-keyword">if</span> (!options.dest) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'required: options.dest'</span>)
+  <span class="hljs-keyword">if</span> (!options.auth) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'required: options.auth'</span>)
+</pre>
         </td>
       </tr>
-      <tr>
-        <td class="docs"><div class="dox">
-  <div class="summary">
-<div class="pilwrap" id="_init">
-  <h3>
-    <a href="#_init" name="_init" class="pilcrow">&#182;</a>
-    _init
-  </h3>
-</div>
-
-  </div>
-  <div class="body"><p>initialise node-persist only once</p>
-  </div>
-</div>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kd">function</span> <span class="nx">_init</span> <span class="p">()</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">initialised</span><span class="p">)</span> <span class="k">return</span>
-  <span class="nx">initialised</span> <span class="o">=</span> <span class="kc">true</span>
-  <span class="nx">store</span><span class="p">.</span><span class="nx">initSync</span><span class="p">({</span>
-    <span class="nx">continuous</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
-    <span class="nx">interval</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
-    <span class="nx">expiredInterval</span><span class="o">:</span> <span class="kc">false</span>
-  <span class="p">})</span>
-<span class="p">}</span>
-
-<span class="kd">function</span> <span class="nx">clearCache</span> <span class="p">()</span> <span class="p">{</span>
-  <span class="kd">let</span> <span class="nx">token</span>
-  <span class="nx">_init</span><span class="p">()</span>
-  <span class="nx">token</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">getItemSync</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">)</span>
-  <span class="nx">store</span><span class="p">.</span><span class="nx">clearSync</span><span class="p">()</span>
-  <span class="nx">store</span><span class="p">.</span><span class="nx">setItemSync</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="nx">token</span><span class="p">)</span>
-<span class="p">}</span>
-
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs"><div class="dox">
-  <div class="summary">
-<div class="pilwrap" id="_getfiles">
-  <h3>
-    <a href="#_getfiles" name="_getfiles" class="pilcrow">&#182;</a>
-    _getFiles
-  </h3>
-</div>
-
-  </div>
-  <div class="body"><p>this gets files from local persistent store, <em>not</em> from drive</p>
-  </div>
-  <div class="details">
-    <div class="dox_tag_title">Params</div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">dest</span>
-      <span class="dox_type">String</span>
-      <span>path under which to store files</span>
-    </div>
-  </div>
-</div>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kd">function</span> <span class="nx">_getFiles</span> <span class="p">(</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">let</span> <span class="nx">paths</span>
-
-</pre></div>
-        </td>
-      </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
 </div>
-<p>files arg contains only files downloaded this time, values contains all</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">cache</span><span class="p">)</span> <span class="nx">files</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">values</span><span class="p">()</span>
+<p>if (options.cache !== undefined) cache = options.cache</p>
 
-</pre></div>
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  <span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Folder(options)
+  <span class="hljs-keyword">return</span> store.plugin.bind(store)
+}
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Folder</span> </span>{
+  <span class="hljs-keyword">constructor</span> (options) {
+    <span class="hljs-built_in">Object</span>.keys(options).forEach(<span class="hljs-function">(<span class="hljs-params">key</span>) =&gt;</span> { <span class="hljs-keyword">this</span>[key] = options[key] })
+    <span class="hljs-keyword">this</span>.name = <span class="hljs-keyword">this</span>.src.slice(<span class="hljs-number">-8</span>)
+    <span class="hljs-keyword">this</span>.store = <span class="hljs-keyword">new</span> Store(<span class="hljs-keyword">this</span>.src)
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.invalidateCache) {
+      <span class="hljs-keyword">this</span>.store.invalidate()
+      params.setLastRun(<span class="hljs-keyword">this</span>, <span class="hljs-literal">false</span>)
+    }
+  }
+  plugin (files, metalsmith) {
+    <span class="hljs-keyword">this</span>.files = files
+    <span class="hljs-keyword">this</span>.metalsmith = metalsmith
+    <span class="hljs-keyword">return</span> vow.resolve()
+    .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> _doAuth(<span class="hljs-keyword">this</span>.auth))
+    .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">this</span>.scrape())
+    .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">this</span>.mergeStore())
+    .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> params.setLastRun(<span class="hljs-keyword">this</span>))
+    .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> vow.resolve(<span class="hljs-keyword">this</span>.files))
+    .catch(dbg)
+  }
+</pre>
         </td>
       </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
-</div>
-<p>ignore non-file things we've stored</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-  <span class="nx">files</span> <span class="o">=</span> <span class="nx">filter</span><span class="p">(</span><span class="nx">files</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">)</span>
-  <span class="nx">dbg</span><span class="p">(</span><span class="err">`</span><span class="nx">got</span> <span class="nx">$</span><span class="p">{</span><span class="nx">files</span><span class="p">.</span><span class="nx">length</span><span class="p">}</span> <span class="nx">files</span><span class="err">`</span><span class="p">)</span>
-  <span class="nx">files</span> <span class="o">=</span> <span class="nx">map</span><span class="p">(</span><span class="nx">files</span><span class="p">,</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="nx">file</span><span class="p">.</span><span class="nx">contents</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">contents</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nx">file</span>
-  <span class="p">})</span>
-  <span class="nx">paths</span> <span class="o">=</span> <span class="nx">map</span><span class="p">(</span><span class="nx">files</span><span class="p">,</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">join</span><span class="p">(</span><span class="nx">dest</span><span class="p">,</span> <span class="nx">file</span><span class="p">.</span><span class="nx">name</span><span class="p">))</span>
-  <span class="nx">files</span> <span class="o">=</span> <span class="nx">zipObject</span><span class="p">(</span><span class="nx">paths</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span>
-  <span class="k">return</span> <span class="nx">files</span>
-<span class="p">}</span>
-
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs"><div class="dox">
-  <div class="summary">
+          <div class="dox">
+<div class="summary">
 <div class="pilwrap" id="_scrape">
   <h3>
-    <a href="#_scrape" name="_scrape" class="pilcrow">&#182;</a>
-    _scrape
+    <a href="#_scrape" name="_scrape" class="pilcrow"></a>
+_scrape
   </h3>
 </div>
-
-  </div>
-  <div class="body"><p>scrape files from google drive</p>
-
+</div>
+<div class="body">
+<p>scrape files from google drive</p>
 <p>nested highland stream...</p>
-
 <ul>
 <li>without backpressure a stream will just push everything into a slow
-consumer which is kind of the antithesis of a stream (a lake?)
-<ul><li>the calls to drive api do not have any inherant backpressure so it needs
+consumer which is kind of the antithesis of a stream (a lake?)</li>
+<li>the calls to drive api do not have any inherant backpressure so it needs
 to be created artificially. highlands <code>throttle</code> or <code>ratelimit</code> are based
 on ms, so that would just be an arbitrary limit uneffected by how fast the
 api is running. <code>parallel</code> allows to have x concurrent requests.</li>
@@ -303,489 +233,538 @@ api is running. <code>parallel</code> allows to have x concurrent requests.</li>
 <code>generator().map( ... ).parallel(5)</code> then map <em>must</em> return a stream. In
 this case the stream returned contains only a single promise. Think of it
 more like a promise decorated with the highland api rather than an actual
-stream.</li></ul></li>
+stream.</li>
 </ul>
-  </div>
-  <div class="details">
-    <div class="dox_tag_title">Params</div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">src</span>
-      <span class="dox_type">string</span>
-      <span>google drive parent folder id</span>
-    </div>
-  </div>
 </div>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kd">function</span> <span class="nx">_scrape</span> <span class="p">(</span><span class="nx">src</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kr">const</span> <span class="nx">defer</span> <span class="o">=</span> <span class="nx">vow</span><span class="p">.</span><span class="nx">defer</span><span class="p">()</span>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">src</span>
+<span class="dox_type">string</span>
+<span>google drive parent folder id
+</span>
+</div>
+</div>
+</div>
 
-</pre></div>
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  scrape () {
+    dbg(<span class="hljs-string">'scrape'</span>, <span class="hljs-keyword">this</span>.name)
+    <span class="hljs-keyword">const</span> defer = vow.defer()
+</pre>
         </td>
       </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5"></a>
 </div>
 <p>returns a highland stream</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-  <span class="nx">_streamFiles</span><span class="p">(</span><span class="nx">src</span><span class="p">)</span>
-  <span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">file</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
 
-</pre></div>
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">    <span class="hljs-keyword">this</span>.streamFiles()
+    .map(<span class="hljs-function">(<span class="hljs-params">file</span>) =&gt;</span> {
+</pre>
         </td>
       </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-9" id="section-9">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6"></a>
 </div>
 <p>must return stream (or <em>highland decorated promise</em>)</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-    <span class="k">return</span> <span class="nx">highland</span><span class="p">(</span>
-      <span class="nx">vow</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">file</span><span class="p">)</span>
-      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">_downloadFile</span><span class="p">)</span>
-      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">_frontMatter</span><span class="p">)</span>
-      <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">_storeFile</span><span class="p">)</span>
-      <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">dbg</span><span class="p">)</span>
-    <span class="p">)</span>
-  <span class="p">})</span>
 
-</pre></div>
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">      <span class="hljs-keyword">return</span> highland(
+        vow.resolve(file)
+        .then(<span class="hljs-function">(<span class="hljs-params">file</span>) =&gt;</span> <span class="hljs-keyword">this</span>.downloadFile(file))
+        .then(<span class="hljs-function">(<span class="hljs-params">file</span>) =&gt;</span> <span class="hljs-keyword">this</span>.frontMatter(file))
+        .then(<span class="hljs-function">(<span class="hljs-params">file</span>) =&gt;</span> <span class="hljs-keyword">this</span>.storeFile(file))
+        .catch(dbg)
+      )
+    })
+</pre>
         </td>
       </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-10" id="section-10">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-7" id="section-7"></a>
 </div>
 <p>artificial backpressure</p>
+
         </td>
-        <td class="code highlight"><div class="highlight"><pre>
-  <span class="p">.</span><span class="nx">parallel</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-  <span class="p">.</span><span class="nx">toArray</span><span class="p">((</span><span class="nx">files</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="nx">defer</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">files</span><span class="p">)</span>
-  <span class="p">})</span>
-  <span class="k">return</span> <span class="nx">defer</span><span class="p">.</span><span class="nx">promise</span><span class="p">()</span>
-<span class="p">}</span>
-
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs"><div class="dox">
-  <div class="summary">
-<div class="pilwrap" id="_storefile">
-  <h3>
-    <a href="#_storefile" name="_storefile" class="pilcrow">&#182;</a>
-    _storeFile
-  </h3>
-</div>
-
-  </div>
-  <div class="body"><p>store file in persist cache with drive id as key</p>
-  </div>
-  <div class="details">
-    <div class="dox_tag_title">Params</div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">file
-</span>
-      <span class="dox_type">Object</span>
-    </div>
-  </div>
-</div>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kd">function</span> <span class="nx">_storeFile</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">cache</span><span class="p">)</span> <span class="nx">store</span><span class="p">.</span><span class="nx">setItemSync</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">file</span><span class="p">)</span>
-  <span class="k">return</span> <span class="nx">file</span>
-<span class="p">}</span>
-
-</pre></div>
+        <td class="code highlight">
+          <pre class="javascript">    .parallel(<span class="hljs-number">5</span>)
+    .toArray(<span class="hljs-function">(<span class="hljs-params">files</span>) =&gt;</span> {
+      defer.resolve(files)
+    })
+    <span class="hljs-keyword">return</span> defer.promise()
+  }
+</pre>
         </td>
       </tr>
-      <tr>
-        <td class="docs"><div class="dox">
-  <div class="summary">
-<div class="pilwrap" id="_frontmatter">
-  <h3>
-    <a href="#_frontmatter" name="_frontmatter" class="pilcrow">&#182;</a>
-    _frontMatter
-  </h3>
-</div>
-
-  </div>
-  <div class="body">
-  </div>
-  <div class="details">
-    <div class="dox_tag_title">Params</div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">file
-</span>
-      <span class="dox_type">Object</span>
-    </div>
-  </div>
-</div>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kd">function</span> <span class="nx">_frontMatter</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">let</span> <span class="nx">meta</span> <span class="o">=</span> <span class="nx">matter</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">contents</span><span class="p">)</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">keys</span><span class="p">(</span><span class="nx">meta</span><span class="p">).</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="nx">vow</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="err">`</span><span class="nx">no</span> <span class="nx">front</span> <span class="nx">matter</span><span class="o">?</span> <span class="nx">$</span><span class="p">{</span><span class="nx">file</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="err">`</span><span class="p">)</span>
-  <span class="p">}</span>
-  <span class="nb">Object</span><span class="p">.</span><span class="nx">assign</span><span class="p">(</span>
-    <span class="nx">file</span><span class="p">,</span>
-    <span class="p">{</span> <span class="nx">contents</span><span class="o">:</span> <span class="nx">meta</span><span class="p">.</span><span class="nx">content</span> <span class="p">},</span>
-    <span class="nx">meta</span><span class="p">.</span><span class="nx">data</span>
-  <span class="p">)</span>
-
-  <span class="k">return</span> <span class="nx">file</span>
-<span class="p">}</span>
-
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs"><div class="dox">
-  <div class="summary">
-<div class="pilwrap" id="_downloadfilebymeta">
-  <h3>
-    <a href="#_downloadfilebymeta" name="_downloadfilebymeta" class="pilcrow">&#182;</a>
-    _downloadFileByMeta
-  </h3>
-</div>
-
-  </div>
-  <div class="body">
-  </div>
-  <div class="details">
-    <div class="dox_tag_title">Params</div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">file</span>
-      <span class="dox_type">Object</span>
-      <span>as streadmed from _streamFiles</span>
-    </div>
-  </div>
-</div>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kd">function</span> <span class="nx">_downloadFile</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="p">{</span>
-  <span class="nx">dbg</span><span class="p">(</span><span class="err">`</span><span class="nx">downloading</span> <span class="nx">$</span><span class="p">{</span><span class="nx">file</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="err">`</span><span class="p">)</span>
-
-  <span class="kr">const</span> <span class="nx">defer</span> <span class="o">=</span> <span class="nx">vow</span><span class="p">.</span><span class="nx">defer</span><span class="p">()</span>
-  <span class="nx">drive</span><span class="p">.</span><span class="nx">files</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span>
-    <span class="p">{</span>
-      <span class="nx">auth</span><span class="o">:</span> <span class="nx">oauth</span><span class="p">,</span>
-      <span class="nx">fileId</span><span class="o">:</span> <span class="nx">file</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
-
-</pre></div>
-        </td>
-      </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-14" id="section-14">&#182;</a>
-</div>
-<p><code>alt: 'media'</code> triggers file download rather than just meta</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-      <span class="nx">alt</span><span class="o">:</span> <span class="s1">&#39;media&#39;</span>
-    <span class="p">},</span>
-    <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">defer</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-15" id="section-15">&#182;</a>
-</div>
-<p>note that at this point we just keep a string rather than a Buffer</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-      <span class="nx">file</span><span class="p">.</span><span class="nx">contents</span> <span class="o">=</span> <span class="nx">result</span>
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-16" id="section-16">&#182;</a>
-</div>
-<p>return the whole <code>file</code> object rather than just the content</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-      <span class="nx">defer</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">file</span><span class="p">)</span>
-    <span class="p">}</span>
-  <span class="p">)</span>
-  <span class="k">return</span> <span class="nx">defer</span><span class="p">.</span><span class="nx">promise</span><span class="p">()</span>
-<span class="p">}</span>
-
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs"><div class="dox">
-  <div class="summary">
-<div class="pilwrap" id="_streamfilemeta">
+          <div class="dox">
+<div class="summary">
+<div class="pilwrap" id="streamfiles">
   <h3>
-    <a href="#_streamfilemeta" name="_streamfilemeta" class="pilcrow">&#182;</a>
-    _streamFileMeta
+    <a href="#streamfiles" name="streamfiles" class="pilcrow"></a>
+streamFiles
   </h3>
 </div>
-
-  </div>
-  <div class="body"><p>some rad highland stream magic!</p>
-
+</div>
+<div class="body">
+<p>some rad highland stream magic!</p>
 <ul>
 <li>the highland constructor is passed a function which will be called every
-time the stream is ready for more data
-<ul><li>the two args passed to this fn are to <code>push</code> (queue?) data into the stream
+time the stream is ready for more data</li>
+<li>the two args passed to this fn are to <code>push</code> (queue?) data into the stream
 and to <code>next</code> when there's a good opportunity to do something else to
 consume the data</li>
 <li>so basically every time the stream has capacity, we will request a page
 from the API and push each file onto the stream. if there's no
-<code>nextPageToken</code> then we notify the stream that there's no more.</li></ul></li>
+<code>nextPageToken</code> then we notify the stream that there's no more.</li>
 </ul>
-  </div>
-  <div class="details">
-    <div class="dox_tag_title">Params</div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">parent</span>
-      <span class="dox_type">String</span>
-      <span>id of parent folder</span>
-    </div>
-  </div>
 </div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">parent</span>
+<span class="dox_type">String</span>
+<span>id of parent folder
+</span>
+</div>
+</div>
+</div>
+
         </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kd">function</span> <span class="nx">_streamFiles</span> <span class="p">(</span><span class="nx">parent</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">let</span> <span class="nx">pageToken</span> <span class="o">=</span> <span class="kc">false</span>
-  <span class="kd">let</span> <span class="nx">lastRun</span> <span class="o">=</span> <span class="nx">store</span><span class="p">.</span><span class="nx">getItemSync</span><span class="p">(</span><span class="s1">&#39;lastRun&#39;</span><span class="p">)</span>
-  <span class="kd">let</span> <span class="nx">count</span> <span class="o">=</span> <span class="mi">0</span>
-  <span class="k">return</span> <span class="nx">highland</span><span class="p">((</span><span class="nx">push</span><span class="p">,</span> <span class="nx">next</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="kr">const</span> <span class="nx">request</span> <span class="o">=</span> <span class="p">{}</span>
+        <td class="code highlight">
+          <pre class="javascript">  streamFiles () {
+    <span class="hljs-keyword">let</span> pageToken = <span class="hljs-literal">false</span>
+    <span class="hljs-keyword">let</span> lastRun = params.getLastRun(<span class="hljs-keyword">this</span>)
+    dbg(<span class="hljs-string">'lastRun'</span>, lastRun)
+    <span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>
+    <span class="hljs-keyword">return</span> highland(<span class="hljs-function">(<span class="hljs-params">push, next</span>) =&gt;</span> {
+      <span class="hljs-keyword">const</span> request = {}
 
-
-</pre></div>
+</pre>
         </td>
       </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-18" id="section-18">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-9" id="section-9"></a>
 </div>
 <p>build request object with query</p>
+
         </td>
-        <td class="code highlight"><div class="highlight"><pre>
-    <span class="nx">request</span><span class="p">.</span><span class="nx">auth</span> <span class="o">=</span> <span class="nx">oauth</span>
-    <span class="nx">request</span><span class="p">.</span><span class="nx">fields</span> <span class="o">=</span> <span class="s1">&#39;files(id, name, trashed)&#39;</span>
-    <span class="nx">request</span><span class="p">.</span><span class="nx">q</span> <span class="o">=</span> <span class="nx">compact</span><span class="p">([</span>
-      <span class="s1">&#39;mimeType != &quot;application/vnd.google-apps.folder&quot;&#39;</span><span class="p">,</span>
-      <span class="err">`</span><span class="s2">&quot;${parent}&quot;</span> <span class="k">in</span> <span class="nx">parents</span><span class="err">`</span><span class="p">,</span>
-      <span class="nx">lastRun</span> <span class="o">&amp;&amp;</span> <span class="nx">cache</span> <span class="o">?</span> <span class="err">`</span><span class="nx">modifiedTime</span> <span class="o">&gt;</span> <span class="s2">&quot;${lastRun}&quot;</span><span class="err">`</span> <span class="o">:</span> <span class="kc">false</span>
-    <span class="p">]).</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39; and &#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">pageToken</span><span class="p">)</span> <span class="nx">request</span><span class="p">.</span><span class="nx">pageToken</span> <span class="o">=</span> <span class="nx">pageToken</span>
+        <td class="code highlight">
+          <pre class="javascript">      request.auth = oauth
+      request.fields = <span class="hljs-string">'files(id, name, mimeType, trashed)'</span>
+      request.q = compact([
+        <span class="hljs-string">'mimeType != "application/vnd.google-apps.folder"'</span>,
+        <span class="hljs-string">`"<span class="hljs-subst">${<span class="hljs-keyword">this</span>.src}</span>" in parents`</span>,
+        lastRun ? <span class="hljs-string">`modifiedTime &gt; "<span class="hljs-subst">${lastRun}</span>"`</span> : <span class="hljs-literal">false</span>
+      ]).join(<span class="hljs-string">' and '</span>)
+      <span class="hljs-keyword">if</span> (pageToken) request.pageToken = pageToken
 
-
-</pre></div>
+</pre>
         </td>
       </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-19" id="section-19">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-10" id="section-10"></a>
 </div>
 <p>async api call, no need to promisify because we bat for both teams ?</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-    <span class="nx">drive</span><span class="p">.</span><span class="nx">files</span><span class="p">.</span><span class="nx">list</span><span class="p">(</span><span class="nx">request</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-      <span class="nx">count</span> <span class="o">+=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">files</span><span class="p">.</span><span class="nx">length</span>
-      <span class="nx">each</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">files</span><span class="p">,</span> <span class="p">(</span><span class="nx">file</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
 
-</pre></div>
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">      drive.files.list(request, (err, result) =&gt; {
+        <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(err)
+        count += result.files.length
+        each(result.files, (file) =&gt; {
+</pre>
         </td>
       </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-20" id="section-20">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-11" id="section-11"></a>
 </div>
 <p>this is all we need to do to deal with deleted files</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-        <span class="k">if</span> <span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">trashed</span><span class="p">)</span> <span class="p">{</span>
-          <span class="nx">dbg</span><span class="p">(</span><span class="err">`</span><span class="nx">ignoring</span> <span class="nx">trashed</span> <span class="nx">$</span><span class="p">{</span><span class="nx">file</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="err">`</span><span class="p">)</span>
-          <span class="k">if</span> <span class="p">(</span><span class="nx">cache</span><span class="p">)</span> <span class="nx">store</span><span class="p">.</span><span class="nx">removeItemSync</span><span class="p">(</span><span class="nx">file</span><span class="p">.</span><span class="nx">id</span><span class="p">)</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
 
-</pre></div>
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">          <span class="hljs-keyword">if</span> (file.trashed) {
+            dbg(<span class="hljs-string">`ignoring trashed <span class="hljs-subst">${file.name}</span>`</span>)
+            <span class="hljs-keyword">this</span>.store.removeResource(file.id)
+          } <span class="hljs-keyword">else</span> {
+</pre>
         </td>
       </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-21" id="section-21">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-12" id="section-12"></a>
 </div>
 <p>push / emit file to the highland stream</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-          <span class="nx">push</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">file</span><span class="p">)</span>
-        <span class="p">}</span>
-      <span class="p">})</span>
-      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">result</span><span class="p">.</span><span class="nx">nextPageToken</span><span class="p">)</span> <span class="p">{</span>
 
-</pre></div>
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">            push(<span class="hljs-literal">null</span>, file)
+          }
+        })
+        <span class="hljs-keyword">if</span> (!result.nextPageToken) {
+</pre>
         </td>
       </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-22" id="section-22">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-13" id="section-13"></a>
 </div>
 <p>close highland stream with special <code>highland.nil</code></p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-        <span class="nx">dbg</span><span class="p">(</span><span class="err">`</span><span class="nx">$</span><span class="p">{</span><span class="nx">count</span><span class="p">}</span> <span class="nx">files</span> <span class="nx">to</span> <span class="nx">be</span> <span class="nx">updated</span><span class="err">`</span><span class="p">)</span>
-        <span class="nx">push</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">highland</span><span class="p">.</span><span class="nx">nil</span><span class="p">)</span>
-      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
 
-</pre></div>
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">          dbg(<span class="hljs-string">`<span class="hljs-subst">${count}</span> files to be updated`</span>)
+          push(<span class="hljs-literal">null</span>, highland.nil)
+        } <span class="hljs-keyword">else</span> {
+</pre>
         </td>
       </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-23" id="section-23">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-14" id="section-14"></a>
 </div>
 <p>indicate that more values can be retrieved</p>
+
         </td>
-        <td class="code highlight"><div class="highlight"><pre>
-        <span class="nx">pageToken</span> <span class="o">=</span> <span class="nx">result</span><span class="p">.</span><span class="nx">nextPageToken</span>
-        <span class="nx">next</span><span class="p">()</span>
-      <span class="p">}</span>
-    <span class="p">})</span>
-  <span class="p">})</span> <span class="c1">// .done(() =&gt; dbg(&#39;streamFiles done&#39;))</span>
-<span class="p">}</span>
-
-
-</pre></div>
+        <td class="code highlight">
+          <pre class="javascript">          pageToken = result.nextPageToken
+          next()
+        }
+      })
+    })
+  }
+</pre>
         </td>
       </tr>
+    
       <tr>
-        <td class="docs"><div class="dox">
-  <div class="summary">
+        <td class="docs">
+          <div class="dox">
+<div class="summary">
+<div class="pilwrap" id="downloadfile">
+  <h3>
+    <a href="#downloadfile" name="downloadfile" class="pilcrow"></a>
+downloadFile
+  </h3>
+</div>
+</div>
+<div class="body">
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">file</span>
+<span class="dox_type">Object</span>
+<span>as streadmed from _streamFiles
+</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  downloadFile (file) {
+    dbg(<span class="hljs-string">`downloading <span class="hljs-subst">${file.name}</span>`</span>)
+
+    <span class="hljs-keyword">const</span> defer = vow.defer()
+    <span class="hljs-keyword">const</span> chunks = []
+    drive.files.get({
+      <span class="hljs-attr">auth</span>: oauth,
+      <span class="hljs-attr">fileId</span>: file.id,
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-16" id="section-16"></a>
+</div>
+<p><code>alt: 'media'</code> triggers file download rather than just meta</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">      alt: <span class="hljs-string">'media'</span>
+    })
+    .on(<span class="hljs-string">'data'</span>, (chunk) =&gt; {
+      chunks.push(chunk)
+    })
+    .on(<span class="hljs-string">'end'</span>, () =&gt; {
+      file.contents = Buffer.concat(chunks)
+      defer.resolve(file)
+    })
+    .on(<span class="hljs-string">'error'</span>, (err) =&gt; defer.reject(err))
+    <span class="hljs-keyword">return</span> defer.promise()
+  }
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="dox">
+<div class="summary">
+<div class="pilwrap" id="frontmatter">
+  <h3>
+    <a href="#frontmatter" name="frontmatter" class="pilcrow"></a>
+frontMatter
+  </h3>
+</div>
+</div>
+<div class="body">
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">file</span>
+<span class="dox_type">Object</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  frontMatter (file) {
+    <span class="hljs-keyword">if</span> (!<span class="hljs-regexp">/^text/</span>.exec(file.mimeType)) <span class="hljs-keyword">return</span> file
+    <span class="hljs-keyword">let</span> meta = matter(file.contents.toString(<span class="hljs-string">'utf8'</span>))
+    <span class="hljs-keyword">if</span> (keys(meta).length === <span class="hljs-number">0</span>) {
+      <span class="hljs-keyword">return</span> vow.reject(<span class="hljs-string">`no front matter? <span class="hljs-subst">${file.name}</span>`</span>)
+    }
+    <span class="hljs-built_in">Object</span>.assign(
+      file,
+      { <span class="hljs-attr">contents</span>: meta.content },
+      meta.data
+    )
+    <span class="hljs-keyword">return</span> file
+  }
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="dox">
+<div class="summary">
+<div class="pilwrap" id="storefile">
+  <h3>
+    <a href="#storefile" name="storefile" class="pilcrow"></a>
+storeFile
+  </h3>
+</div>
+</div>
+<div class="body">
+<p>store file in persist cache with drive id as key</p>
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">file</span>
+<span class="dox_type">Object</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  storeFile (file) {
+    <span class="hljs-keyword">let</span> encoding = <span class="hljs-regexp">/^text/</span>.exec(file.mimeType) ? <span class="hljs-string">'utf8'</span> : <span class="hljs-string">'base64'</span>
+    file.contents = file.contents.toString(encoding)
+    <span class="hljs-keyword">this</span>.store.setResource(join(<span class="hljs-keyword">this</span>.dest, file.id), file)
+    <span class="hljs-keyword">return</span> file
+  }
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="dox">
+<div class="summary">
+<div class="pilwrap" id="_getfiles">
+  <h3>
+    <a href="#_getfiles" name="_getfiles" class="pilcrow"></a>
+_getFiles
+  </h3>
+</div>
+</div>
+<div class="body">
+<p>this gets files from local persistent store, <em>not</em> from drive</p>
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">dest</span>
+<span class="dox_type">String</span>
+<span>path under which to store files
+</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  mergeStore () {
+    <span class="hljs-keyword">const</span> store = <span class="hljs-keyword">this</span>.store.getResources(<span class="hljs-keyword">this</span>.dest)
+    <span class="hljs-built_in">Object</span>.keys(store).forEach(<span class="hljs-function">(<span class="hljs-params">key</span>) =&gt;</span> {
+      <span class="hljs-keyword">let</span> encoding = <span class="hljs-regexp">/^text/</span>.exec(store[key].mimeType) ? <span class="hljs-string">'utf8'</span> : <span class="hljs-string">'base64'</span>
+      store[key].contents = <span class="hljs-keyword">new</span> Buffer(store[key].contents, encoding)
+    })
+    dbg(
+      <span class="hljs-string">`merging <span class="hljs-subst">${<span class="hljs-built_in">Object</span>.keys(store).length}</span> `</span> +
+      <span class="hljs-string">`tracked files from <span class="hljs-subst">${<span class="hljs-keyword">this</span>.store.name}</span>`</span>
+    )
+    <span class="hljs-built_in">Object</span>.assign(<span class="hljs-keyword">this</span>.files, store)
+  }
+}
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="dox">
+<div class="summary">
 <div class="pilwrap" id="_doauth">
   <h3>
-    <a href="#_doauth" name="_doauth" class="pilcrow">&#182;</a>
-    _doAuth
+    <a href="#_doauth" name="_doauth" class="pilcrow"></a>
+_doAuth
   </h3>
 </div>
-
-  </div>
-  <div class="body"><p>set up the API auth structure, retrieve cached token or request one</p>
-
-<p><em>_ tokens _</em>
- * I haven't been able to figure out how long this token lasts for, I have a
-   feeling it might last until invalidated.
- * What happens to a token when the same client_secret is used to generate
-   another token, like on another machine</p>
-  </div>
-  <div class="details">
-    <div class="dox_tag_title">Params</div>
-    <div class="dox_tag_detail">
-      <span class="dox_tag_name">auth</span>
-      <span class="dox_type">Object</span>
-      <span>see properties passed to googleAuth.OAuth2</span>
-    </div>
-  </div>
 </div>
+<div class="body">
+<p>set up the API auth structure, retrieve cached token or request one</p>
+<p>__ tokens __</p>
+<ul>
+<li>I haven't been able to figure out how long this token lasts for, I have a
+feeling it might last until invalidated.</li>
+<li>What happens to a token when the same client_secret is used to generate
+another token, like on another machine</li>
+</ul>
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">auth</span>
+<span class="dox_type">Object</span>
+<span>see properties passed to googleAuth.OAuth2
+</span>
+</div>
+</div>
+</div>
+
         </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kd">function</span> <span class="nx">_doAuth</span> <span class="p">(</span><span class="nx">auth</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kr">const</span> <span class="nx">googleAuth</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">GoogleAuth</span><span class="p">()</span>
-  <span class="nx">oauth</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">googleAuth</span><span class="p">.</span><span class="nx">OAuth2</span><span class="p">(</span>
-    <span class="nx">auth</span><span class="p">.</span><span class="nx">client_id</span><span class="p">,</span>
-    <span class="nx">auth</span><span class="p">.</span><span class="nx">client_secret</span><span class="p">,</span>
-    <span class="nx">auth</span><span class="p">.</span><span class="nx">redirect_uris</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-  <span class="p">)</span>
-  <span class="k">return</span> <span class="nx">vow</span><span class="p">.</span><span class="nx">resolve</span><span class="p">()</span>
-  <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">store</span><span class="p">.</span><span class="nx">getItemSync</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">)</span> <span class="o">||</span> <span class="nx">_tokenFlow</span><span class="p">())</span>
-  <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">token</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="nx">dbg</span><span class="p">(</span><span class="nx">token</span><span class="p">)</span>
-    <span class="nx">oauth</span><span class="p">.</span><span class="nx">credentials</span> <span class="o">=</span> <span class="nx">token</span>
-  <span class="p">})</span>
-  <span class="p">.</span><span class="k">catch</span><span class="p">((</span><span class="nx">err</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">dbg</span><span class="p">(</span><span class="nx">err</span><span class="p">))</span>
-<span class="p">}</span>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_doAuth</span> (<span class="hljs-params">auth</span>) </span>{
+  <span class="hljs-keyword">if</span> (oauth) <span class="hljs-keyword">return</span> vow.resolve()
+  dbg(<span class="hljs-string">'doing oAuth2'</span>)
+  <span class="hljs-keyword">const</span> googleAuth = <span class="hljs-keyword">new</span> GoogleAuth()
+  oauth = <span class="hljs-keyword">new</span> googleAuth.OAuth2(
+    auth.client_id,
+    auth.client_secret,
+    auth.redirect_uris[<span class="hljs-number">0</span>]
+  )
+  <span class="hljs-keyword">return</span> vow.resolve()
+  .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> params.getToken() || _tokenFlow())
+  .then(<span class="hljs-function">(<span class="hljs-params">token</span>) =&gt;</span> {
+    oauth.credentials = token
+  })
+  .catch(<span class="hljs-function">(<span class="hljs-params">err</span>) =&gt;</span> dbg(err))
+}
 
-
-</pre></div>
+</pre>
         </td>
       </tr>
+    
       <tr>
-        <td class="docs"><div class="dox">
-  <div class="summary">
+        <td class="docs">
+          <div class="dox">
+<div class="summary">
 <div class="pilwrap" id="_tokenflow">
   <h3>
-    <a href="#_tokenflow" name="_tokenflow" class="pilcrow">&#182;</a>
-    _tokenFlow
+    <a href="#_tokenflow" name="_tokenflow" class="pilcrow"></a>
+_tokenFlow
   </h3>
 </div>
-
-  </div>
-  <div class="body"><p>usually this auth flow happens in your browser, but here we do it via CLI
-this fn prints the auth url, which gives the user a code to paste back in</p>
-  </div>
 </div>
+<div class="body">
+<p>usually this auth flow happens in your browser, but here we do it via CLI
+this fn prints the auth url, which gives the user a code to paste back in</p>
+</div>
+</div>
+
         </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kd">function</span> <span class="nx">_tokenFlow</span> <span class="p">()</span> <span class="p">{</span>
-  <span class="kr">const</span> <span class="nx">defer</span> <span class="o">=</span> <span class="nx">vow</span><span class="p">.</span><span class="nx">defer</span><span class="p">()</span>
-  <span class="kd">let</span> <span class="nx">prompt</span>
-  <span class="kr">const</span> <span class="nx">authUrl</span> <span class="o">=</span> <span class="nx">oauth</span><span class="p">.</span><span class="nx">generateAuthUrl</span><span class="p">({</span>
-    <span class="nx">access_type</span><span class="o">:</span> <span class="s1">&#39;offline&#39;</span><span class="p">,</span>
-    <span class="nx">scope</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;https://www.googleapis.com/auth/drive.readonly&#39;</span><span class="p">]</span>
-  <span class="p">})</span>
-  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;authorise metalsmith-google-drive by visiting: &#39;</span><span class="p">,</span> <span class="nx">authUrl</span><span class="p">)</span>
-  <span class="nx">prompt</span> <span class="o">=</span> <span class="nx">readline</span><span class="p">.</span><span class="nx">createInterface</span><span class="p">({</span>
-    <span class="nx">input</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">stdin</span><span class="p">,</span>
-    <span class="nx">output</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span>
-  <span class="p">})</span>
-  <span class="nx">prompt</span><span class="p">.</span><span class="nx">question</span><span class="p">(</span><span class="s1">&#39;Enter the code from that page here: &#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">code</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="nx">prompt</span><span class="p">.</span><span class="nx">close</span><span class="p">()</span>
-    <span class="nx">oauth</span><span class="p">.</span><span class="nx">getToken</span><span class="p">(</span><span class="nx">code</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-      <span class="nx">dbg</span><span class="p">(</span><span class="s1">&#39;got token&#39;</span><span class="p">)</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">dbg</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-        <span class="nx">defer</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="nx">store</span><span class="p">.</span><span class="nx">setItemSync</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="nx">result</span><span class="p">)</span>
-        <span class="nx">defer</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">result</span><span class="p">)</span>
-      <span class="p">}</span>
-    <span class="p">})</span>
-  <span class="p">})</span>
-  <span class="k">return</span> <span class="nx">defer</span><span class="p">.</span><span class="nx">promise</span><span class="p">()</span>
-<span class="p">}</span>
-<span class="kr">export</span> <span class="k">default</span> <span class="nx">plugin</span>
-<span class="kr">export</span> <span class="p">{</span>
-  <span class="nx">plugin</span><span class="p">,</span>
-  <span class="nx">clearCache</span>
-<span class="p">}</span>
-</pre></div>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_tokenFlow</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> defer = vow.defer()
+  <span class="hljs-keyword">let</span> prompt
+  <span class="hljs-keyword">const</span> authUrl = oauth.generateAuthUrl({
+    <span class="hljs-attr">access_type</span>: <span class="hljs-string">'offline'</span>,
+    <span class="hljs-attr">scope</span>: [<span class="hljs-string">'https://www.googleapis.com/auth/drive.readonly'</span>]
+  })
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'authorise metalsmith-google-drive by visiting: '</span>, authUrl)
+  prompt = readline.createInterface({
+    <span class="hljs-attr">input</span>: process.stdin,
+    <span class="hljs-attr">output</span>: process.stdout
+  })
+  prompt.question(<span class="hljs-string">'Enter the code from that page here: '</span>, (code) =&gt; {
+    prompt.close()
+    oauth.getToken(code, (err, result) =&gt; {
+      <span class="hljs-keyword">if</span> (err) {
+        dbg(err)
+        defer.reject(err)
+      } <span class="hljs-keyword">else</span> {
+        params.setToken(result)
+        defer.resolve(result)
+      }
+    })
+  })
+  <span class="hljs-keyword">return</span> defer.promise()
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> plugin
+<span class="hljs-keyword">export</span> {
+  plugin
+}
+
+</pre>
         </td>
       </tr>
+    
   </tbody>
 </table>
+
   </div>
 </body>
 </html>

@@ -6,9 +6,12 @@
   <link rel="stylesheet" media="all" href="../doc-style.css" />
   <script src="../doc-filelist.js"></script>
   <script>
-    var relativeDir = "../", thisFile = "test/index.js", defaultSidebar = true;
+    var relativeDir = "../";
+    var thisFile = "test/index.js";
+    var defaultSidebar = true;
   </script>
   <script src="../doc-script.js"></script>
+
 </head>
 <body>
   <div id="sidebar_wrapper">
@@ -18,243 +21,106 @@
     </div>
     <div id="tree"></div>
     <div id="headings">
+
     </div>
   </div>
   <div id="sidebar-toggle"></div>
-  <div id="container"><div class="background highlight"></div>
+  <div id="container">
+    <div class="background highlight"></div>
 <table cellpadding="0" cellspacing="0">
   <tbody>
+    
       <tr>
         <td class="docs">
           <h1>index.js</h1>
         </td>
         <td class="code highlight"></td>
       </tr>
+    
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-1" id="section-1">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
 </div>
 
         </td>
-        <td class="code highlight"><div class="highlight"><pre><span class="kr">import</span> <span class="nx">Metalsmith</span> <span class="nx">from</span> <span class="s1">&#39;metalsmith&#39;</span>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">import</span> plugin <span class="hljs-keyword">from</span> <span class="hljs-string">'../lib'</span>
+<span class="hljs-keyword">import</span> nock <span class="hljs-keyword">from</span> <span class="hljs-string">'nock'</span>
+<span class="hljs-keyword">import</span> config <span class="hljs-keyword">from</span> <span class="hljs-string">'config'</span>
+<span class="hljs-keyword">import</span> debug <span class="hljs-keyword">from</span> <span class="hljs-string">'debug'</span>
+<span class="hljs-keyword">import</span> { join } <span class="hljs-keyword">from</span> <span class="hljs-string">'path'</span>
+<span class="hljs-keyword">import</span> { assert } <span class="hljs-keyword">from</span> <span class="hljs-string">'chai'</span>
+<span class="hljs-keyword">import</span> Metalsmith <span class="hljs-keyword">from</span> <span class="hljs-string">'metalsmith'</span>
+<span class="hljs-keyword">import</span> sinon <span class="hljs-keyword">from</span> <span class="hljs-string">'sinon'</span>
+<span class="hljs-keyword">import</span> { writeFileSync, readFileSync } <span class="hljs-keyword">from</span> <span class="hljs-string">'fs'</span>
 
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-2" id="section-2">&#182;</a>
-</div>
-<p>import assert from 'assert'</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kr">import</span> <span class="p">{</span>
-  <span class="nx">plugin</span>
-<span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;../lib&#39;</span>
-<span class="kr">import</span> <span class="nx">config</span> <span class="nx">from</span> <span class="s1">&#39;config&#39;</span>
+<span class="hljs-keyword">const</span> dbg = debug(<span class="hljs-string">'metalsmith-google-drive'</span>)
 
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-3" id="section-3">&#182;</a>
-</div>
-<p>import lint from 'mocha-eslint'
-import sinon from 'sinon'
-import highland from 'highland'</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kr">import</span> <span class="p">{</span> <span class="nx">parse</span> <span class="nx">as</span> <span class="nx">parseHjson</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;hjson&#39;</span>
-<span class="kr">import</span> <span class="nx">vow</span> <span class="nx">from</span> <span class="s1">&#39;vow&#39;</span>
-<span class="kr">import</span> <span class="p">{</span> <span class="nx">join</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;path&#39;</span>
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-4" id="section-4">&#182;</a>
-</div>
-<p>import { readFileSync } from 'fs'
-import store from 'node-persist'</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="kr">import</span> <span class="nx">debug</span> <span class="nx">from</span> <span class="s1">&#39;debug&#39;</span>
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-5" id="section-5">&#182;</a>
-</div>
-<p>import { keys } from 'lodash'
-import nock from 'nock'
-import util from 'util'
-import { appendFileSync } from 'fs'
-import readline from 'readline'</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-6" id="section-6">&#182;</a>
-</div>
-<p>nock.recorder.rec({
-  logging: (content) => {
-    appendFileSync('test/fixtures/nock.js', content)
-  }
-})
-nock.recorder.rec()</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-
-<span class="kr">const</span> <span class="nx">dbg</span> <span class="o">=</span> <span class="nx">debug</span><span class="p">(</span><span class="s1">&#39;metalsmith-google-drive&#39;</span><span class="p">)</span>
-
-</pre></div>
-        </td>
-      </tr>
-      <tr>
-        <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-7" id="section-7">&#182;</a>
-</div>
-<p>function copy (desc, obj) {
-  console.log(<code>&lt;&lt;&lt;&lt;&lt;&lt;-- ${desc} --&gt;&gt;&gt;&gt;&gt;&gt;</code>)
-  console.log(JSON.stringify(obj, null, 2))
-  console.log(<code>&lt;&lt;&lt;&lt;&lt;&lt;-- ${desc} --&gt;&gt;&gt;&gt;&gt;&gt;</code>)
+nock.recorder.rec()
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getFix</span> (<span class="hljs-params">src</span>) </span>{
+  <span class="hljs-keyword">let</span> buffer = readFileSync(join(<span class="hljs-string">'test/fixtures'</span>, src))
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">JSON</span>.parse(buffer.toString(<span class="hljs-string">'utf8'</span>))
 }
-let fixture = function (basename) {
-  return () => {
-    let path = join('test/fixtures', basename + '.hjson')
-    let file = readFileSync(path, {encoding: 'utf8'})
-    let data = parseHjson(file)
-    return vow.resolve(data)
-  }
-}
-lint(['lib/index.js'])
-before('stub listFolder with empty entries', () => {
-  stubs = [
-    sinon.stub(dropbox, 'filesListFolder', fixture('res3'))
-  ]
-})
-after(function () {
-  each(stubs, (stub) => stub.restore())
-})</p>
-        </td>
-        <td class="code highlight"><div class="highlight"><pre>
-<span class="nx">describe</span><span class="p">(</span><span class="s1">&#39;metalsmith-google-drive&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
 
-</pre></div>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setFix</span> (<span class="hljs-params">value, src</span>) </span>{
+  writeFileSync(join(<span class="hljs-string">'test/fixtures'</span>, src), <span class="hljs-built_in">JSON</span>.stringify(value))
+}
+
+describe(<span class="hljs-string">'metalsmith-google-drive'</span>, () =&gt; {
+  beforeEach(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+</pre>
         </td>
       </tr>
+    
       <tr>
         <td class="docs">
-<div class="pilwrap">
-  <a class="pilcrow" href="#section-8" id="section-8">&#182;</a>
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
 </div>
-<div class="dox">
-  <div class="summary"><p>before(() => {
-store.initSync()
-// nock.load('test/fixtures/setupAuth/nock.json')
-})
-it('should be able to set up auth', (done) => {
-//    nock.load('test/fixtures/setupAuth/nock.json')
-nock('<a href='https://accounts.google.com:443'>https://accounts.google.com:443</a>')
-.post('/o/oauth2/token')
-.reply(
-200,
-{
-"access_token": "dummyToken",
-"expires_in": 3600,
-"refresh_token": "dummyToken",
-"token_type": "Bearer"
-},
-[
-'Content-Type',
-'application/json; charset=utf-8',
-'X-Content-Type-Options',
-'nosniff',
-'Cache-Control',
-'no-cache, no-store, max-age=0, must-revalidate',
-'Pragma',
-'no-cache',
-'Expires',
-'Mon, 01 Jan 1990 00:00:00 GMT',
-'Date',
-'Thu, 19 Jan 2017 22:14:08 GMT',
-'Content-Disposition',
-'attachment; filename="json.txt"; filename*=UTF-8\'\'json.txt',
-'Server',
-'ESF',
-'X-XSS-Protection',
-'1; mode=block',
-'X-Frame-Options',
-'SAMEORIGIN',
-'Alt-Svc',
-'quic=":443"; ma=2592000; v="35,34"',
-'Accept-Ranges',
-'none',
-'Vary',
-'Accept-Encoding',
-'Connection',
-'close'
-]
-)
-dbg('createInterface', readline.createInterface)
-// stubs
-let stubs = [
-sinon.stub(store, 'getItemSync', false),
-sinon.stub(readline, 'createInterface', {
-question: (text, handler) => {
-handler('dummyToken')
-},
-close: () => {}
-})
-]
-// process.stdin.write('dummy auth code\r')
-_doAuth(config.get('metalsmith-google-drive'))
-.then(() => {
-copy('oauth', oauth)
-stubs.forEach((stub) => stub.restore())
-done()
-})
-}).timeout(0)</p>
-  </div>
-  <div class="body">
-  </div>
-</div>
+<p>create spy
+sinon.spy(cloudinary.api, 'resources')</p>
+
         </td>
-        <td class="code highlight"><div class="highlight"><pre>
-  <span class="nx">it</span><span class="p">(</span><span class="s1">&#39;should be able to do something&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">done</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="nx">Metalsmith</span><span class="p">(</span><span class="s1">&#39;test/fixtures&#39;</span><span class="p">)</span>
-    <span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">plugin</span><span class="p">({</span>
-      <span class="nx">auth</span><span class="o">:</span> <span class="nx">config</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;metalsmith-google-drive&#39;</span><span class="p">),</span>
-      <span class="nx">src</span><span class="o">:</span> <span class="s1">&#39;0B1QpLgu4mpt8YXJTYzRlZURkazg&#39;</span><span class="p">,</span>
-      <span class="nx">dest</span><span class="o">:</span> <span class="s1">&#39;articles&#39;</span>
-    <span class="p">}))</span>
-    <span class="p">.</span><span class="nx">build</span><span class="p">((</span><span class="nx">err</span><span class="p">,</span> <span class="nx">files</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">done</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span>
-      <span class="nx">done</span><span class="p">()</span>
-    <span class="p">})</span>
-  <span class="p">}).</span><span class="nx">timeout</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="p">})</span>
-</pre></div>
+        <td class="code highlight">
+          <pre class="javascript">  })
+  afterEach(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+</pre>
         </td>
       </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<p>cloudinary.api.resources.restore()</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  })
+  it(<span class="hljs-string">'should be able to scrape a folder'</span>, (done) =&gt; {
+    Metalsmith(<span class="hljs-string">'test/fixtures'</span>)
+    .use(plugin({
+      <span class="hljs-attr">auth</span>: config.get(<span class="hljs-string">'metalsmith-google-drive'</span>),
+      <span class="hljs-attr">src</span>: <span class="hljs-string">'0B1QpLgu4mpt8YXJTYzRlZURkazg'</span>,
+      <span class="hljs-attr">dest</span>: <span class="hljs-string">'articles'</span>
+    }))
+    .build(<span class="hljs-function">(<span class="hljs-params">err, files</span>) =&gt;</span> {
+      <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> done(err)
+      done()
+    })
+  }).timeout(<span class="hljs-number">0</span>)
+})
+
+</pre>
+        </td>
+      </tr>
+    
   </tbody>
 </table>
+
   </div>
 </body>
 </html>
