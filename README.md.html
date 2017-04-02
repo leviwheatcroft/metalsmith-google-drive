@@ -51,10 +51,6 @@
       </div>
 
       <div class="heading h2">
-        <a href="#node-4-lts">node 4 LTS</a>
-      </div>
-
-      <div class="heading h2">
         <a href="#author">Author</a>
       </div>
 
@@ -95,7 +91,6 @@ metalsmith-google-drive
 install
   </h2>
 </div>
-<p>sorry not published to npm just yet...</p>
 <p><code>npm i --save github:leviwheatcroft/metalsmith-google-drive</code></p>
 <div class="pilwrap" id="usage">
   <h2>
@@ -112,6 +107,9 @@ api credentials
 <p>Follow <a href="https://developers.google.com/drive/v3/web/quickstart/nodejs" title="google drive nodejs quickstart">this guide</a>, go through A to G under <em>Step 1</em>, the downloaded file
 will contain the credentials you need to pass into this plugin. In these
 examples I'm using <a href="https://www.npmjs.com/package/config" title="config package on npm registry">config</a> to store them.</p>
+<p>Once you've authed, the token will be printed to console, you can store this
+token in a config file if you wish, but be aware that it's sensitive so put it
+somewhere which isn't tracked.</p>
 <div class="pilwrap" id="example">
   <h3>
     <a href="#example" name="example" class="pilcrow"></a>
@@ -151,16 +149,9 @@ from the url</li>
 <li>files in subfolders on google drive will be included, but their containing
 folders will not be included in the path in metalsmith. In otherwords, this
 plugin does a recursive search but flattens the result.</li>
-<li>files scraped from drive will not be stored in your source folder, they're
+<li>files scraped from drive will not be stored in your file system, they're
 added directly to metalsmith <code>files</code> structure during build.</li>
 </ul>
-<div class="pilwrap" id="node-4-lts">
-  <h2>
-    <a href="#node-4-lts" name="node-4-lts" class="pilcrow"></a>
-node 4 LTS
-  </h2>
-</div>
-<p><code>var drive = require('metalsmith-google-drive/dist/node4')</code></p>
 <div class="pilwrap" id="author">
   <h2>
     <a href="#author" name="author" class="pilcrow"></a>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>filesGet.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="../doc-style.css" />
+  <script src="../doc-filelist.js"></script>
+  <script>
+    var relativeDir = "../";
+    var thisFile = "test/filesGet.js";
+    var defaultSidebar = true;
+  </script>
+  <script src="../doc-script.js"></script>
+
+</head>
+<body>
+  <div id="sidebar_wrapper">
+    <div id="sidebar_switch">
+      <span class="tree">Files</span>
+      <span class="headings">Headings</span>
+    </div>
+    <div id="tree"></div>
+    <div id="headings">
+
+    </div>
+  </div>
+  <div id="sidebar-toggle"></div>
+  <div id="container">
+    <div class="background highlight"></div>
+<table cellpadding="0" cellspacing="0">
+  <tbody>
+    
+      <tr>
+        <td class="docs">
+          <h1>filesGet.js</h1>
+        </td>
+        <td class="code highlight"></td>
+      </tr>
+    
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-1" id="section-1"></a>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">import</span> google <span class="hljs-keyword">from</span> <span class="hljs-string">'googleapis'</span>
+<span class="hljs-keyword">import</span> GoogleAuth <span class="hljs-keyword">from</span> <span class="hljs-string">'google-auth-library'</span>
+<span class="hljs-keyword">import</span> { params } <span class="hljs-keyword">from</span> <span class="hljs-string">'../store'</span>
+<span class="hljs-keyword">import</span> fs <span class="hljs-keyword">from</span> <span class="hljs-string">'fs'</span>
+<span class="hljs-keyword">import</span> config <span class="hljs-keyword">from</span> <span class="hljs-string">'config'</span>
+
+<span class="hljs-keyword">const</span> auth = config.get(<span class="hljs-string">'metalsmith-google-drive'</span>)
+
+<span class="hljs-keyword">const</span> googleAuth = <span class="hljs-keyword">new</span> GoogleAuth()
+<span class="hljs-keyword">const</span> oauth = <span class="hljs-keyword">new</span> googleAuth.OAuth2(
+  auth.client_id,
+  auth.client_secret,
+  auth.redirect_uris[<span class="hljs-number">0</span>]
+)
+oauth.credentials = params.getToken()
+
+<span class="hljs-keyword">const</span> drive = google.drive({
+  <span class="hljs-attr">version</span>: <span class="hljs-string">'v3'</span>,
+  <span class="hljs-attr">auth</span>: oauth
+})
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">download</span> (<span class="hljs-params">fileId</span>) </span>{
+  drive.files.get({
+    <span class="hljs-attr">fileId</span>: fileId
+  }, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err, metadata</span>) </span>{
+    <span class="hljs-keyword">if</span> (err) {
+      <span class="hljs-built_in">console</span>.error(err)
+      <span class="hljs-keyword">return</span> process.exit()
+    }
+
+    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Downloading %s...'</span>, metadata.name)
+
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<p>auth.setCredentials(tokens)</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">
+    <span class="hljs-keyword">var</span> dest = fs.createWriteStream(metadata.name)
+
+    drive.files.get({
+      <span class="hljs-attr">fileId</span>: fileId,
+      <span class="hljs-attr">alt</span>: <span class="hljs-string">'media'</span>
+    })
+    .on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error downloading file'</span>, err)
+      process.exit()
+    })
+    .pipe(dest)
+
+    dest
+      .on(<span class="hljs-string">'finish'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Downloaded %s!'</span>, metadata.name)
+        process.exit()
+      })
+      .on(<span class="hljs-string">'error'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">err</span>) </span>{
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Error writing file'</span>, err)
+        process.exit()
+      })
+  })
+}
+
+download(<span class="hljs-string">'0B1QpLgu4mpt8SVVOeGdqdFoyc2c'</span>)
+
+</pre>
+        </td>
+      </tr>
+    
+  </tbody>
+</table>
+
+  </div>
+</body>
+</html>

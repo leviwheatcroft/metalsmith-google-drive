@@ -94,6 +94,7 @@
 <span class="hljs-keyword">import</span> highland <span class="hljs-keyword">from</span> <span class="hljs-string">'highland'</span>
 <span class="hljs-keyword">import</span> google <span class="hljs-keyword">from</span> <span class="hljs-string">'googleapis'</span>
 <span class="hljs-keyword">import</span> GoogleAuth <span class="hljs-keyword">from</span> <span class="hljs-string">'google-auth-library'</span>
+<span class="hljs-keyword">import</span> config <span class="hljs-keyword">from</span> <span class="hljs-string">'config'</span>
 <span class="hljs-keyword">import</span> { join } <span class="hljs-keyword">from</span> <span class="hljs-string">'path'</span>
 <span class="hljs-keyword">import</span> {
   Store,
@@ -667,10 +668,7 @@ _doAuth
 <p>set up the API auth structure, retrieve cached token or request one</p>
 <p>__ tokens __</p>
 <ul>
-<li>I haven't been able to figure out how long this token lasts for, I have a
-feeling it might last until invalidated.</li>
-<li>What happens to a token when the same client_secret is used to generate
-another token, like on another machine</li>
+<li>this token lasts until invalidated.</li>
 </ul>
 </div>
 <div class="details">
@@ -696,7 +694,11 @@ another token, like on another machine</li>
     auth.redirect_uris[<span class="hljs-number">0</span>]
   )
   <span class="hljs-keyword">return</span> vow.resolve()
-  .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> params.getToken() || _tokenFlow())
+  .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">return</span> params.getToken() ||
+    config.get(<span class="hljs-string">'metalsmith-google-drive'</span>).token ||
+    _tokenFlow()
+  })
   .then(<span class="hljs-function">(<span class="hljs-params">token</span>) =&gt;</span> {
     oauth.credentials = token
   })
@@ -745,6 +747,10 @@ this fn prints the auth url, which gives the user a code to paste back in</p>
         dbg(err)
         defer.reject(err)
       } <span class="hljs-keyword">else</span> {
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'---------- snip ----------'</span>)
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`metalsmith-google-drive: { token: <span class="hljs-subst">${result}</span> }`</span>)
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'---------- snip ----------'</span>)
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'put this in an untracked config file like local.js'</span>)
         params.setToken(result)
         defer.resolve(result)
       }
