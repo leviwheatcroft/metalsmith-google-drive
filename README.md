@@ -23,8 +23,6 @@ See the [annotated source][1] or [github repo][4]
 
 ## install
 
-sorry not published to npm just yet...
-
 `npm i --save github:leviwheatcroft/metalsmith-google-drive`
 
 ## usage
@@ -34,6 +32,10 @@ sorry not published to npm just yet...
 Follow [this guide][2], go through A to G under *Step 1*, the downloaded file
 will contain the credentials you need to pass into this plugin. In these
 examples I'm using [config][3] to store them.
+
+Once you've authed, the token will be printed to console, you can store this
+token in a config file if you wish, but be aware that it's sensitive so put it
+somewhere which isn't tracked.
 
 ### example
 
@@ -62,12 +64,8 @@ Metalsmith('src')
  * files in subfolders on google drive will be included, but their containing
    folders will not be included in the path in metalsmith. In otherwords, this
    plugin does a recursive search but flattens the result.
- * files scraped from drive will not be stored in your source folder, they're
+ * files scraped from drive will not be stored in your file system, they're
    added directly to metalsmith `files` structure during build.
-
-## node 4 LTS
-
-`var drive = require('metalsmith-google-drive/dist/node4')`
 
 ## Author
 
