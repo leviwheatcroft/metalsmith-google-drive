@@ -95,6 +95,7 @@
 <span class="hljs-keyword">import</span> google <span class="hljs-keyword">from</span> <span class="hljs-string">'googleapis'</span>
 <span class="hljs-keyword">import</span> GoogleAuth <span class="hljs-keyword">from</span> <span class="hljs-string">'google-auth-library'</span>
 <span class="hljs-keyword">import</span> config <span class="hljs-keyword">from</span> <span class="hljs-string">'config'</span>
+<span class="hljs-keyword">import</span> hjson <span class="hljs-keyword">from</span> <span class="hljs-string">'hjson'</span>
 <span class="hljs-keyword">import</span> { join } <span class="hljs-keyword">from</span> <span class="hljs-string">'path'</span>
 <span class="hljs-keyword">import</span> {
   Store,
@@ -695,9 +696,48 @@ _doAuth
   )
   <span class="hljs-keyword">return</span> vow.resolve()
   .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    <span class="hljs-keyword">return</span> params.getToken() ||
-    config.get(<span class="hljs-string">'metalsmith-google-drive'</span>).token ||
-    _tokenFlow()
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-21" id="section-21"></a>
+</div>
+<p>see if token has been recorded in config</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">    <span class="hljs-keyword">let</span> configToken = config.get(<span class="hljs-string">'metalsmith-google-drive'</span>).token
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-22" id="section-22"></a>
+</div>
+<p>no idea why google auth needs the token to be writable, but whatever</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">    <span class="hljs-keyword">if</span> (configToken) configToken = config.util.cloneDeep(configToken)
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-23" id="section-23"></a>
+</div>
+<p>fall back to cache (params), then do token flow</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">    <span class="hljs-keyword">return</span> configToken || params.getToken() || _tokenFlow()
   })
   .then(<span class="hljs-function">(<span class="hljs-params">token</span>) =&gt;</span> {
     oauth.credentials = token
@@ -748,9 +788,13 @@ this fn prints the auth url, which gives the user a code to paste back in</p>
         defer.reject(err)
       } <span class="hljs-keyword">else</span> {
         <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'---------- snip ----------'</span>)
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`metalsmith-google-drive: { token: <span class="hljs-subst">${result}</span> }`</span>)
+        <span class="hljs-built_in">console</span>.log(hjson.stringify(
+          { <span class="hljs-string">'metalsmith-google-drive'</span>: { <span class="hljs-attr">token</span>: result } },
+          { <span class="hljs-attr">separator</span>: <span class="hljs-literal">true</span>, <span class="hljs-attr">spaces</span>: <span class="hljs-number">2</span> }
+        ))
         <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'---------- snip ----------'</span>)
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'put this in an untracked config file like local.js'</span>)
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'this token is cached automatically, but if you can store'</span>)
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'it in a config file like config/local.js if you want.'</span>)
         params.setToken(result)
         defer.resolve(result)
       }
