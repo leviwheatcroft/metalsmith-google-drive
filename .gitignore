@@ -7,5 +7,6 @@ coverage
 docs
 config/local.js
 npm-debug.log
+cache.json
 
 dist

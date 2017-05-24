@@ -11,7 +11,7 @@
     "babel": "cross-env NODE_ENV=node6 babel lib -d dist",
     "babel:watch": "cross-env NODE_ENV=node6 babel lib -d dist -w",
     "test:coverage": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text --check-coverage --lines 100 npm run test",
-    "test": "cross-env NODE_ENV=test mocha --compilers js:babel-register test",
+    "test": "cross-env DEBUG=metalsmith* NODE_ENV=test mocha --compilers js:babel-register test/index",
     "test:watch": "cross-env NODE_ENV=test mocha --compilers js:babel-register --watch test",
     "version": "npm run build",
     "postversion": "git push && git push --tags"
@@ -37,6 +37,7 @@
   "homepage": "https://github.com/leviwheatcroft/metalsmith-google-drive#readme",
   "dependencies": {
     "config": "^1.24.0",
+    "debug": "^2.6.6",
     "google-auth-library": "^0.10.0",
     "googleapis": "^16.0.0",
     "gray-matter": "^2.1.0",
