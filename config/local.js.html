@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>default.json</title>
+  <title>local.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <link rel="stylesheet" media="all" href="../doc-style.css" />
   <script src="../doc-filelist.js"></script>
   <script>
     var relativeDir = "../";
-    var thisFile = "config/default.json";
+    var thisFile = "config/local.js";
     var defaultSidebar = true;
   </script>
   <script src="../doc-script.js"></script>
@@ -32,7 +32,7 @@
     
       <tr>
         <td class="docs">
-          <h1>default.json</h1>
+          <h1>local.js</h1>
         </td>
         <td class="code highlight"></td>
       </tr>
@@ -46,11 +46,18 @@
 
         </td>
         <td class="code highlight">
-          <pre class="json">{
-  <span class="hljs-attr">"metalsmith-google-drive"</span>: {
-    <span class="hljs-attr">"client_id"</span>: <span class="hljs-string">"527245197708-ov8sqqdfmo14a02hq2dc9pr7snp513r2.apps.googleusercontent.com"</span>,
-    <span class="hljs-attr">"client_secret"</span>: <span class="hljs-string">"DM9ccOH9leNJB_4EEiy_p3ij"</span>
-  }
+          <pre class="javascript"><span class="hljs-built_in">module</span>.exports = {
+    <span class="hljs-string">'metalsmith-google-drive'</span>:
+    {
+      <span class="hljs-attr">token</span>:
+      {
+        <span class="hljs-attr">access_token</span>: <span class="hljs-string">"ya29.GltUBL-0VMhEvoAzwCOPizjO18tNEPsNh3s9NvOmhMLJ5JT32PHyAkfkStngK8h05-7lWUGtiVHhdAOTGHWBpWzWRhqBk-TzY_4gnFLMsgfpwRuHIjBG3ZXcdtfA"</span>,
+        <span class="hljs-attr">refresh_token</span>: <span class="hljs-string">"1/5zjOmKvawZ5mIR1aMmj95Uar9OKg9MuBcnHiySWFz9icEjAwv4s-CrQfeVP-_kgR"</span>,
+        <span class="hljs-attr">token_type</span>: <span class="hljs-string">"Bearer"</span>,
+        <span class="hljs-attr">expiry_date</span>: <span class="hljs-number">1495670067154</span>
+      }
+    }
+
 }
 
 </pre>

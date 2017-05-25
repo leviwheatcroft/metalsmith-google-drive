@@ -48,7 +48,7 @@
         <td class="code highlight">
           <pre class="json">{
   <span class="hljs-attr">"name"</span>: <span class="hljs-string">"metalsmith-google-drive"</span>,
-  <span class="hljs-attr">"version"</span>: <span class="hljs-string">"0.1.2"</span>,
+  <span class="hljs-attr">"version"</span>: <span class="hljs-string">"0.1.4"</span>,
   <span class="hljs-attr">"description"</span>: <span class="hljs-string">"metalsmith plugin scrape google drive folder"</span>,
   <span class="hljs-attr">"main"</span>: <span class="hljs-string">"dist/index.js"</span>,
   <span class="hljs-attr">"scripts"</span>: {
@@ -59,7 +59,7 @@
     <span class="hljs-attr">"babel"</span>: <span class="hljs-string">"cross-env NODE_ENV=node6 babel lib -d dist"</span>,
     <span class="hljs-attr">"babel:watch"</span>: <span class="hljs-string">"cross-env NODE_ENV=node6 babel lib -d dist -w"</span>,
     <span class="hljs-attr">"test:coverage"</span>: <span class="hljs-string">"cross-env NODE_ENV=test nyc --reporter=lcov --reporter=text --check-coverage --lines 100 npm run test"</span>,
-    <span class="hljs-attr">"test"</span>: <span class="hljs-string">"cross-env NODE_ENV=test mocha --compilers js:babel-register test"</span>,
+    <span class="hljs-attr">"test"</span>: <span class="hljs-string">"cross-env DEBUG=metalsmith* NODE_ENV=test mocha --compilers js:babel-register test/index"</span>,
     <span class="hljs-attr">"test:watch"</span>: <span class="hljs-string">"cross-env NODE_ENV=test mocha --compilers js:babel-register --watch test"</span>,
     <span class="hljs-attr">"version"</span>: <span class="hljs-string">"npm run build"</span>,
     <span class="hljs-attr">"postversion"</span>: <span class="hljs-string">"git push &amp;&amp; git push --tags"</span>
@@ -85,13 +85,13 @@
   <span class="hljs-attr">"homepage"</span>: <span class="hljs-string">"https://github.com/leviwheatcroft/metalsmith-google-drive#readme"</span>,
   <span class="hljs-attr">"dependencies"</span>: {
     <span class="hljs-attr">"config"</span>: <span class="hljs-string">"^1.24.0"</span>,
+    <span class="hljs-attr">"debug"</span>: <span class="hljs-string">"^2.6.6"</span>,
     <span class="hljs-attr">"google-auth-library"</span>: <span class="hljs-string">"^0.10.0"</span>,
     <span class="hljs-attr">"googleapis"</span>: <span class="hljs-string">"^16.0.0"</span>,
     <span class="hljs-attr">"gray-matter"</span>: <span class="hljs-string">"^2.1.0"</span>,
-    <span class="hljs-attr">"highland"</span>: <span class="hljs-string">"^2.10.1"</span>,
     <span class="hljs-attr">"hjson"</span>: <span class="hljs-string">"^2.4.1"</span>,
-    <span class="hljs-attr">"lodash"</span>: <span class="hljs-string">"^4.16.4"</span>,
     <span class="hljs-attr">"metalsmith"</span>: <span class="hljs-string">"^2.2.0"</span>,
+    <span class="hljs-attr">"metalsmith-cache"</span>: <span class="hljs-string">"0.0.3"</span>,
     <span class="hljs-attr">"moment"</span>: <span class="hljs-string">"^2.17.1"</span>,
     <span class="hljs-attr">"multimatch"</span>: <span class="hljs-string">"^2.1.0"</span>,
     <span class="hljs-attr">"node-persist"</span>: <span class="hljs-string">"^2.0.7"</span>,
@@ -108,12 +108,14 @@
     <span class="hljs-attr">"babel-preset-stage-0"</span>: <span class="hljs-string">"^6.16.0"</span>,
     <span class="hljs-attr">"babel-register"</span>: <span class="hljs-string">"^6.16.3"</span>,
     <span class="hljs-attr">"cross-env"</span>: <span class="hljs-string">"^3.1.3"</span>,
+    <span class="hljs-attr">"docker"</span>: <span class="hljs-string">"^1.0.0"</span>,
     <span class="hljs-attr">"eslint"</span>: <span class="hljs-string">"^3.7.1"</span>,
     <span class="hljs-attr">"eslint-config-standard"</span>: <span class="hljs-string">"^6.2.0"</span>,
     <span class="hljs-attr">"eslint-plugin-babel"</span>: <span class="hljs-string">"^3.3.0"</span>,
     <span class="hljs-attr">"eslint-plugin-promise"</span>: <span class="hljs-string">"^3.0.0"</span>,
     <span class="hljs-attr">"eslint-plugin-standard"</span>: <span class="hljs-string">"^2.0.1"</span>,
     <span class="hljs-attr">"gh-pages"</span>: <span class="hljs-string">"^0.12.0"</span>,
+    <span class="hljs-attr">"lodash"</span>: <span class="hljs-string">"^4.17.4"</span>,
     <span class="hljs-attr">"mocha"</span>: <span class="hljs-string">"^3.1.2"</span>,
     <span class="hljs-attr">"mocha-eslint"</span>: <span class="hljs-string">"^3.0.1"</span>,
     <span class="hljs-attr">"nock"</span>: <span class="hljs-string">"^9.0.2"</span>,
