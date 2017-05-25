@@ -1,6 +1,6 @@
 {
   "name": "metalsmith-google-drive",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "metalsmith plugin scrape google drive folder",
   "main": "dist/index.js",
   "scripts": {
