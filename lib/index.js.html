@@ -30,12 +30,12 @@
         <a href="#_scrape">_scrape</a>
       </div>
 
-      <div class="heading h2">
-        <a href="#_write">_write</a>
-      </div>
-
       <div class="heading h3">
         <a href="#streamfiles">streamFiles</a>
+      </div>
+
+      <div class="heading h2">
+        <a href="#_write">_write</a>
       </div>
 
       <div class="heading h3">
@@ -91,8 +91,20 @@
 <span class="hljs-keyword">import</span> matter <span class="hljs-keyword">from</span> <span class="hljs-string">'gray-matter'</span>
 <span class="hljs-keyword">import</span> readline <span class="hljs-keyword">from</span> <span class="hljs-string">'readline'</span>
 <span class="hljs-keyword">import</span> google <span class="hljs-keyword">from</span> <span class="hljs-string">'googleapis'</span>
-<span class="hljs-keyword">import</span> GoogleAuth <span class="hljs-keyword">from</span> <span class="hljs-string">'google-auth-library'</span>
-<span class="hljs-keyword">import</span> config <span class="hljs-keyword">from</span> <span class="hljs-string">'config'</span>
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-2" id="section-2"></a>
+</div>
+<p>import GoogleAuth from 'google-auth-library'</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript"><span class="hljs-keyword">import</span> config <span class="hljs-keyword">from</span> <span class="hljs-string">'config'</span>
 <span class="hljs-keyword">import</span> hjson <span class="hljs-keyword">from</span> <span class="hljs-string">'hjson'</span>
 <span class="hljs-keyword">import</span> {
   Readable,
@@ -103,22 +115,12 @@
 } <span class="hljs-keyword">from</span> <span class="hljs-string">'path'</span>
 <span class="hljs-keyword">import</span> {
   FileCache,
-  ValueCache,
-  init <span class="hljs-keyword">as</span> initCache,
-  save <span class="hljs-keyword">as</span> saveCache
+  ValueCache
 } <span class="hljs-keyword">from</span> <span class="hljs-string">'metalsmith-cache'</span>
-
-<span class="hljs-keyword">let</span> fileCache = <span class="hljs-literal">false</span>
-<span class="hljs-keyword">let</span> valueCache = <span class="hljs-literal">false</span>
-
-initCache().then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-  fileCache = <span class="hljs-keyword">new</span> FileCache(<span class="hljs-string">'google-drive'</span>)
-  valueCache = <span class="hljs-keyword">new</span> ValueCache(<span class="hljs-string">'google-drive-params'</span>)
-})
 
 <span class="hljs-keyword">const</span> dbg = debug(<span class="hljs-string">'metalsmith-google-drive'</span>)
 <span class="hljs-keyword">const</span> drive = google.drive(<span class="hljs-string">'v3'</span>)
-<span class="hljs-keyword">let</span> oauth
+<span class="hljs-keyword">let</span> oAuth2Client
 
 </pre>
         </td>
@@ -182,26 +184,7 @@ default
   <span class="hljs-keyword">if</span> (!options.src) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'required: options.src'</span>)
   <span class="hljs-keyword">if</span> (!options.dest) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'required: options.dest'</span>)
   <span class="hljs-keyword">if</span> (!options.auth) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'required: options.auth'</span>)
-</pre>
-        </td>
-      </tr>
-    
-      <tr>
-        <td class="docs">
-          <div class="pilwrap">
-  <a class="pilcrow" href="#section-3" id="section-3"></a>
-</div>
-<p>if (options.cache !== undefined) cache = options.cache</p>
 
-        </td>
-        <td class="code highlight">
-          <pre class="javascript">  <span class="hljs-keyword">if</span> (options.invalidateCache) {
-    initCache().then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-      dbg(<span class="hljs-string">'invalidating cache'</span>)
-      fileCache.collection.clear()
-      valueCache.collection.clear()
-    })
-  }
   <span class="hljs-keyword">const</span> folder = <span class="hljs-keyword">new</span> Folder(options)
   <span class="hljs-keyword">return</span> folder.googleDrive.bind(folder)
 }
@@ -209,6 +192,8 @@ default
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Folder</span> </span>{
   <span class="hljs-keyword">constructor</span> (options) {
     <span class="hljs-built_in">Object</span>.assign(<span class="hljs-keyword">this</span>, options)
+    <span class="hljs-keyword">this</span>.fileCache = <span class="hljs-keyword">new</span> FileCache(<span class="hljs-string">`google-drive-<span class="hljs-subst">${options.src}</span>`</span>)
+    <span class="hljs-keyword">this</span>.valueCache = <span class="hljs-keyword">new</span> ValueCache(<span class="hljs-string">`google-drive-<span class="hljs-subst">${options.src}</span>`</span>)
   }
   googleDrive (files, metalsmith) {
 </pre>
@@ -228,17 +213,25 @@ default
     <span class="hljs-keyword">this</span>.files = files
     <span class="hljs-keyword">this</span>.metalsmith = metalsmith
     <span class="hljs-keyword">return</span> vow.resolve()
-    .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> initCache())
+    .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">this</span>._invalidate())
     .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> _doAuth(<span class="hljs-keyword">this</span>.auth))
     .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">this</span>.scrape())
     .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">this</span>.mergeStore())
-    .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> valueCache.store(<span class="hljs-keyword">this</span>.src, <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>().toISOString()))
-    .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> saveCache())
+    .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">this</span>.valueCache.store(<span class="hljs-string">'lastRun'</span>, <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>().toISOString()))
     .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> vow.resolve(<span class="hljs-keyword">this</span>.files))
     .catch(<span class="hljs-function">(<span class="hljs-params">err</span>) =&gt;</span> {
       <span class="hljs-keyword">if</span> (err === <span class="hljs-string">'skip'</span>) <span class="hljs-keyword">return</span> dbg(<span class="hljs-string">'skipped scrape'</span>)
       dbg(err)
+      <span class="hljs-keyword">return</span> vow.reject(err)
     })
+  }
+  _invalidate () {
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.invalidate || <span class="hljs-keyword">this</span>.invalidateCache) {
+      <span class="hljs-keyword">return</span> vow.all([
+        <span class="hljs-keyword">this</span>.fileCache.invalidate(),
+        <span class="hljs-keyword">this</span>.valueCache.invalidate()
+      ])
+    }
   }
 </pre>
         </td>
@@ -291,7 +284,7 @@ stream.</li>
     <span class="hljs-keyword">const</span> stream = <span class="hljs-keyword">this</span>.streamFiles()
     stream.on(<span class="hljs-string">'error'</span>, defer.reject.bind(defer))
     <span class="hljs-keyword">const</span> worker = <span class="hljs-keyword">this</span>.processDownloadedFiles()
-    worker.on(<span class="hljs-string">'finish'</span>, defer.resolve.bind(defer))
+    worker.on(<span class="hljs-string">'done'</span>, defer.resolve.bind(defer))
     worker.on(<span class="hljs-string">'error'</span>, defer.reject.bind(defer))
 
 </pre>
@@ -311,96 +304,7 @@ stream.</li>
 
     <span class="hljs-keyword">return</span> defer.promise()
   }
-  processDownloadedFiles () {
-    <span class="hljs-keyword">const</span> folder = <span class="hljs-keyword">this</span>
-    <span class="hljs-keyword">return</span> <span class="hljs-built_in">Object</span>.assign(
-      <span class="hljs-keyword">new</span> Writable({
-        <span class="hljs-attr">objectMode</span>: <span class="hljs-literal">true</span>,
-        <span class="hljs-attr">highWaterMark</span>: <span class="hljs-number">60</span>
-      }),
-      {
-        <span class="hljs-attr">concurrency</span>: <span class="hljs-number">5</span>, <span class="hljs-comment">// configurable here</span>
-        workers: <span class="hljs-number">0</span>, <span class="hljs-comment">// don't change this</span>
-</pre>
-        </td>
-      </tr>
-    
-      <tr>
-        <td class="docs">
-          <div class="dox">
-<div class="summary">
-<div class="pilwrap" id="_write">
-  <h2>
-    <a href="#_write" name="_write" class="pilcrow"></a>
-_write
-  </h2>
-</div>
-<p>this is where the parallel stream magic happens.. pay attention
-each time <code>_write</code> is called, we either call <code>next</code> immediately (if
-we haven't yet reached concurrency limit) or we call <code>next</code> once the
-worker has finished.</p>
-</div>
-<div class="body">
-</div>
-<div class="details">
-<div class="dox_tag_title">Params</div>
-<div class="dox_tag_detail">
-<span class="dox_tag_name">file</span>
-<span class="dox_type">Object</span>
-<span>pushed from streamFiles
-</span>
-</div>
-<div class="dox_tag_detail">
-<span class="dox_tag_name">encoding</span>
-<span class="dox_type">String</span>
-<span>ignored
-</span>
-</div>
-<div class="dox_tag_detail">
-<span class="dox_tag_name">next</span>
-<span class="dox_type">Function</span>
-<span>call when ready for subsequent worker to start
-</span>
-</div>
-</div>
-</div>
 
-        </td>
-        <td class="code highlight">
-          <pre class="javascript">        _write: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_write</span> (<span class="hljs-params">file, encoding, next</span>) </span>{
-          <span class="hljs-keyword">this</span>.workers++
-          vow.resolve(file)
-          .then(<span class="hljs-function">(<span class="hljs-params">file</span>) =&gt;</span> folder.downloadFile(file))
-          .then(<span class="hljs-function">(<span class="hljs-params">file</span>) =&gt;</span> folder.frontMatter(file))
-          .then(<span class="hljs-function">(<span class="hljs-params">file</span>) =&gt;</span> folder.storeFile(file))
-          .catch(dbg)
-          .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-            <span class="hljs-keyword">this</span>.workers--
-            next()
-          })
-
-</pre>
-        </td>
-      </tr>
-    
-      <tr>
-        <td class="docs">
-          <div class="pilwrap">
-  <a class="pilcrow" href="#section-8" id="section-8"></a>
-</div>
-<p>if not at concurrency limit, call next immediately (don't wait for
-worker to finish)</p>
-
-        </td>
-        <td class="code highlight">
-          <pre class="javascript">          <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.workers &lt; <span class="hljs-keyword">this</span>.concurrency) {
-            next()
-            next = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {}
-          }
-        }
-      }
-    )
-  }
 </pre>
         </td>
       </tr>
@@ -457,7 +361,7 @@ from the API and push each file onto the stream. if there's no
       <tr>
         <td class="docs">
           <div class="pilwrap">
-  <a class="pilcrow" href="#section-10" id="section-10"></a>
+  <a class="pilcrow" href="#section-8" id="section-8"></a>
 </div>
 <p>buffer docs ready to be pushed to outbound stream buffer</p>
 
@@ -471,7 +375,7 @@ from the API and push each file onto the stream. if there's no
       <tr>
         <td class="docs">
           <div class="pilwrap">
-  <a class="pilcrow" href="#section-11" id="section-11"></a>
+  <a class="pilcrow" href="#section-9" id="section-9"></a>
 </div>
 <p>issued by google api for paged requests</p>
 
@@ -485,7 +389,7 @@ from the API and push each file onto the stream. if there's no
       <tr>
         <td class="docs">
           <div class="pilwrap">
-  <a class="pilcrow" href="#section-12" id="section-12"></a>
+  <a class="pilcrow" href="#section-10" id="section-10"></a>
 </div>
 <p>flag to ensure we don't request again if already awaiting request
 and <code>_read</code> is called</p>
@@ -500,7 +404,7 @@ and <code>_read</code> is called</p>
       <tr>
         <td class="docs">
           <div class="pilwrap">
-  <a class="pilcrow" href="#section-13" id="section-13"></a>
+  <a class="pilcrow" href="#section-11" id="section-11"></a>
 </div>
 <p>flag for whether EOF has been reached</p>
 
@@ -514,13 +418,13 @@ and <code>_read</code> is called</p>
       <tr>
         <td class="docs">
           <div class="pilwrap">
-  <a class="pilcrow" href="#section-14" id="section-14"></a>
+  <a class="pilcrow" href="#section-12" id="section-12"></a>
 </div>
 <p>only request changes since <code>lastRun</code></p>
 
         </td>
         <td class="code highlight">
-          <pre class="javascript">        lastRun: valueCache.retrieve(folder.src),
+          <pre class="javascript">        lastRun: <span class="hljs-literal">undefined</span>,
         <span class="hljs-attr">count</span>: <span class="hljs-number">0</span>,
         <span class="hljs-attr">_read</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_read</span> (<span class="hljs-params"></span>) </span>{
           <span class="hljs-keyword">this</span>._next()
@@ -533,7 +437,7 @@ and <code>_read</code> is called</p>
       <tr>
         <td class="docs">
           <div class="pilwrap">
-  <a class="pilcrow" href="#section-15" id="section-15"></a>
+  <a class="pilcrow" href="#section-13" id="section-13"></a>
 </div>
 <p>if our toPush is empty, request more</p>
 
@@ -547,7 +451,7 @@ and <code>_read</code> is called</p>
       <tr>
         <td class="docs">
           <div class="pilwrap">
-  <a class="pilcrow" href="#section-16" id="section-16"></a>
+  <a class="pilcrow" href="#section-14" id="section-14"></a>
 </div>
 <p>push oldest item</p>
 
@@ -562,7 +466,7 @@ and <code>_read</code> is called</p>
       <tr>
         <td class="docs">
           <div class="pilwrap">
-  <a class="pilcrow" href="#section-17" id="section-17"></a>
+  <a class="pilcrow" href="#section-15" id="section-15"></a>
 </div>
 <p>then go again if this.push returned truthy</p>
 
@@ -579,7 +483,7 @@ and <code>_read</code> is called</p>
       <tr>
         <td class="docs">
           <div class="pilwrap">
-  <a class="pilcrow" href="#section-18" id="section-18"></a>
+  <a class="pilcrow" href="#section-16" id="section-16"></a>
 </div>
 <p>block additional requests</p>
 
@@ -588,15 +492,13 @@ and <code>_read</code> is called</p>
           <pre class="javascript">          <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.requested) <span class="hljs-keyword">return</span>
           <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.exhausted) <span class="hljs-keyword">return</span>
           <span class="hljs-keyword">this</span>.requested = <span class="hljs-literal">true</span>
-          <span class="hljs-keyword">const</span> request = {}
-          request.auth = oauth
-          request.fields = <span class="hljs-string">'files(id, name, mimeType, trashed)'</span>
-          request.q = [
-            <span class="hljs-string">`mimeType != "application/vnd.google-apps.folder"`</span>,
-            <span class="hljs-string">` and "<span class="hljs-subst">${folder.src}</span>" in parents`</span>,
-            <span class="hljs-keyword">this</span>.lastRun ? <span class="hljs-string">` and modifiedTime &gt; "<span class="hljs-subst">${<span class="hljs-keyword">this</span>.lastRun}</span>"`</span> : <span class="hljs-string">''</span>
-          ].join(<span class="hljs-string">''</span>)
-          <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.pageToken) request.pageToken = <span class="hljs-keyword">this</span>.pageToken
+          <span class="hljs-keyword">this</span>._makeRequest()
+          .then(<span class="hljs-function">(<span class="hljs-params">request</span>) =&gt;</span> {
+            drive.files.list(request, (err, result) =&gt; {
+              <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> vow.reject(err)
+              <span class="hljs-keyword">this</span>._processResult(result.files)
+              .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+                <span class="hljs-keyword">if</span> (!result.nextPageToken) {
 </pre>
         </td>
       </tr>
@@ -604,16 +506,156 @@ and <code>_read</code> is called</p>
       <tr>
         <td class="docs">
           <div class="pilwrap">
-  <a class="pilcrow" href="#section-19" id="section-19"></a>
+  <a class="pilcrow" href="#section-17" id="section-17"></a>
 </div>
-<p>async api call, no need to promisify because we bat for both teams ?</p>
+<p>end of stream</p>
 
         </td>
         <td class="code highlight">
-          <pre class="javascript">          drive.files.list(request, (err, result) =&gt; {
-            <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(err)
-            <span class="hljs-keyword">this</span>.count += result.files.length
-            result.files.forEach(<span class="hljs-function">(<span class="hljs-params">file</span>) =&gt;</span> {
+          <pre class="javascript">                  dbg(<span class="hljs-string">`<span class="hljs-subst">${<span class="hljs-keyword">this</span>.count}</span> files to be updated`</span>)
+                  <span class="hljs-keyword">this</span>.toPush.push(<span class="hljs-literal">null</span>)
+                  <span class="hljs-keyword">this</span>.exhausted = <span class="hljs-literal">true</span>
+                } <span class="hljs-keyword">else</span> {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-18" id="section-18"></a>
+</div>
+<p>indicate that more values can be retrieved</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">                  <span class="hljs-keyword">this</span>.pageToken = result.nextPageToken
+                }
+                <span class="hljs-keyword">this</span>.requested = <span class="hljs-literal">false</span>
+                <span class="hljs-keyword">this</span>._next()
+              })
+            })
+          })
+          .catch(<span class="hljs-function">(<span class="hljs-params">err</span>) =&gt;</span> {
+            dbg(err)
+          })
+        },
+
+        <span class="hljs-attr">_makeRequest</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+          <span class="hljs-keyword">return</span> vow.resolve()
+          .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.lastRun === <span class="hljs-literal">undefined</span>) {
+              <span class="hljs-keyword">return</span> folder.valueCache.retrieve(<span class="hljs-string">'lastRun'</span>)
+              .catch(<span class="hljs-function">(<span class="hljs-params">err</span>) =&gt;</span> {
+                dbg(err)
+                <span class="hljs-keyword">return</span> vow.resolve(<span class="hljs-literal">false</span>)
+              })
+              .then(<span class="hljs-function">(<span class="hljs-params">lastRun</span>) =&gt;</span> {
+                dbg(<span class="hljs-string">`lastRun: <span class="hljs-subst">${lastRun}</span>`</span>)
+                <span class="hljs-keyword">this</span>.lastRun = lastRun
+              })
+            }
+          })
+          .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+            <span class="hljs-keyword">const</span> request = {}
+            request.auth = oAuth2Client
+            request.fields = <span class="hljs-string">'files(id, name, mimeType, trashed)'</span>
+            request.q = [
+              <span class="hljs-string">`mimeType != "application/vnd.google-apps.folder"`</span>,
+              <span class="hljs-string">` and "<span class="hljs-subst">${folder.src}</span>" in parents`</span>,
+              <span class="hljs-keyword">this</span>.lastRun ? <span class="hljs-string">` and modifiedTime &gt; "<span class="hljs-subst">${<span class="hljs-keyword">this</span>.lastRun}</span>"`</span> : <span class="hljs-string">''</span>
+            ].join(<span class="hljs-string">''</span>)
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.pageToken) request.pageToken = <span class="hljs-keyword">this</span>.pageToken
+            <span class="hljs-keyword">return</span> vow.resolve(request)
+          })
+        },
+
+        <span class="hljs-attr">_processResult</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">files</span>) </span>{
+          <span class="hljs-keyword">let</span> workers = files.map(<span class="hljs-function">(<span class="hljs-params">file</span>) =&gt;</span> {
+            <span class="hljs-keyword">if</span> (file.trashed) {
+              dbg(<span class="hljs-string">`ignoring trashed <span class="hljs-subst">${file.name}</span>`</span>)
+              <span class="hljs-keyword">return</span> folder.fileCache.remove(join(folder.dest, file.id))
+            }
+            <span class="hljs-keyword">this</span>.count += <span class="hljs-number">1</span>
+            <span class="hljs-keyword">this</span>.toPush.push(file)
+            <span class="hljs-keyword">return</span> vow.resolve()
+          })
+          <span class="hljs-keyword">return</span> vow.all(workers)
+        }
+
+      }
+    )
+  }
+  processDownloadedFiles () {
+    <span class="hljs-keyword">const</span> folder = <span class="hljs-keyword">this</span>
+    <span class="hljs-keyword">const</span> writable = <span class="hljs-built_in">Object</span>.assign(
+      <span class="hljs-keyword">new</span> Writable({
+        <span class="hljs-attr">objectMode</span>: <span class="hljs-literal">true</span>,
+        <span class="hljs-attr">highWaterMark</span>: <span class="hljs-number">60</span>
+      }),
+      {
+        <span class="hljs-attr">concurrency</span>: <span class="hljs-number">5</span>, <span class="hljs-comment">// configurable here</span>
+        workers: <span class="hljs-number">0</span>, <span class="hljs-comment">// don't change this</span>
+        isFinished: <span class="hljs-literal">false</span>, <span class="hljs-comment">// or this</span>
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="dox">
+<div class="summary">
+<div class="pilwrap" id="_write">
+  <h2>
+    <a href="#_write" name="_write" class="pilcrow"></a>
+_write
+  </h2>
+</div>
+<p>this is where the parallel stream magic happens.. pay attention
+each time <code>_write</code> is called, we either call <code>next</code> immediately (if
+we haven't yet reached concurrency limit) or we call <code>next</code> once the
+worker has finished.</p>
+</div>
+<div class="body">
+</div>
+<div class="details">
+<div class="dox_tag_title">Params</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">file</span>
+<span class="dox_type">Object</span>
+<span>pushed from streamFiles
+</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">encoding</span>
+<span class="dox_type">String</span>
+<span>ignored
+</span>
+</div>
+<div class="dox_tag_detail">
+<span class="dox_tag_name">next</span>
+<span class="dox_type">Function</span>
+<span>call when ready for subsequent worker to start
+</span>
+</div>
+</div>
+</div>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">        _write: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_write</span> (<span class="hljs-params">file, encoding, next</span>) </span>{
+          <span class="hljs-keyword">this</span>.workers++
+          vow.resolve(file)
+          .then(<span class="hljs-function">(<span class="hljs-params">file</span>) =&gt;</span> folder.downloadFile(file))
+          .then(<span class="hljs-function">(<span class="hljs-params">file</span>) =&gt;</span> folder.frontMatter(file))
+          .then(<span class="hljs-function">(<span class="hljs-params">file</span>) =&gt;</span> folder.storeFile(file))
+          .catch(<span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> dbg(e))
+          .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+            <span class="hljs-keyword">this</span>.workers--
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.workers === <span class="hljs-number">0</span> &amp;&amp; <span class="hljs-keyword">this</span>.isFinished) <span class="hljs-keyword">this</span>.emit(<span class="hljs-string">'done'</span>)
+            next()
+          })
+
 </pre>
         </td>
       </tr>
@@ -623,56 +665,23 @@ and <code>_read</code> is called</p>
           <div class="pilwrap">
   <a class="pilcrow" href="#section-20" id="section-20"></a>
 </div>
-<p>deal with deleted files</p>
+<p>if not at concurrency limit, call next immediately (don't wait for
+worker to finish)</p>
 
         </td>
         <td class="code highlight">
-          <pre class="javascript">              <span class="hljs-keyword">if</span> (file.trashed) {
-                dbg(<span class="hljs-string">`ignoring trashed <span class="hljs-subst">${file.name}</span>`</span>)
-                <span class="hljs-keyword">this</span>.count -= <span class="hljs-number">1</span>
-                <span class="hljs-keyword">return</span> fileCache.remove(join(folder.dest, file.id))
-              }
-              <span class="hljs-keyword">this</span>.toPush.push(file)
-            })
-            <span class="hljs-keyword">if</span> (!result.nextPageToken) {
-</pre>
-        </td>
-      </tr>
-    
-      <tr>
-        <td class="docs">
-          <div class="pilwrap">
-  <a class="pilcrow" href="#section-21" id="section-21"></a>
-</div>
-<p>end of stream</p>
-
-        </td>
-        <td class="code highlight">
-          <pre class="javascript">              dbg(<span class="hljs-string">`<span class="hljs-subst">${<span class="hljs-keyword">this</span>.count}</span> files to be updated`</span>)
-              <span class="hljs-keyword">this</span>.toPush.push(<span class="hljs-literal">null</span>)
-              <span class="hljs-keyword">this</span>.exhausted = <span class="hljs-literal">true</span>
-            } <span class="hljs-keyword">else</span> {
-</pre>
-        </td>
-      </tr>
-    
-      <tr>
-        <td class="docs">
-          <div class="pilwrap">
-  <a class="pilcrow" href="#section-22" id="section-22"></a>
-</div>
-<p>indicate that more values can be retrieved</p>
-
-        </td>
-        <td class="code highlight">
-          <pre class="javascript">              <span class="hljs-keyword">this</span>.pageToken = result.nextPageToken
-            }
-            <span class="hljs-keyword">this</span>._next()
-            <span class="hljs-keyword">this</span>.requested = <span class="hljs-literal">false</span>
-          })
+          <pre class="javascript">          <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.workers &lt; <span class="hljs-keyword">this</span>.concurrency) {
+            next()
+            next = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {}
+          }
         }
       }
     )
+    writable.on(<span class="hljs-string">'finish'</span>, () =&gt; {
+      writable.isFinished = <span class="hljs-literal">true</span>
+      <span class="hljs-keyword">if</span> (writable.workers === <span class="hljs-number">0</span>) writable.emit(<span class="hljs-string">'done'</span>)
+    })
+    <span class="hljs-keyword">return</span> writable
   }
 </pre>
         </td>
@@ -710,7 +719,7 @@ downloadFile
     <span class="hljs-keyword">const</span> defer = vow.defer()
     <span class="hljs-keyword">const</span> chunks = []
     drive.files.get({
-      <span class="hljs-attr">auth</span>: oauth,
+      <span class="hljs-attr">auth</span>: oAuth2Client,
       <span class="hljs-attr">fileId</span>: file.id,
 </pre>
         </td>
@@ -719,7 +728,7 @@ downloadFile
       <tr>
         <td class="docs">
           <div class="pilwrap">
-  <a class="pilcrow" href="#section-24" id="section-24"></a>
+  <a class="pilcrow" href="#section-22" id="section-22"></a>
 </div>
 <p><code>alt: 'media'</code> triggers file download rather than just meta</p>
 
@@ -766,7 +775,20 @@ frontMatter
         </td>
         <td class="code highlight">
           <pre class="javascript">  frontMatter (file) {
-    <span class="hljs-keyword">if</span> (!<span class="hljs-regexp">/^text/</span>.exec(file.mimeType)) <span class="hljs-keyword">return</span> file
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-24" id="section-24"></a>
+</div>
+<p>dbg(<code>frontmatter ${file.name}</code>)</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">    <span class="hljs-keyword">if</span> (!<span class="hljs-regexp">/^text/</span>.exec(file.mimeType)) <span class="hljs-keyword">return</span> file
     <span class="hljs-keyword">let</span> meta = matter(file.contents.toString(<span class="hljs-string">'utf8'</span>))
     <span class="hljs-keyword">if</span> (<span class="hljs-built_in">Object</span>.keys(meta).length === <span class="hljs-number">0</span>) {
       <span class="hljs-keyword">return</span> vow.reject(<span class="hljs-string">`no front matter? <span class="hljs-subst">${file.name}</span>`</span>)
@@ -808,8 +830,20 @@ storeFile
         </td>
         <td class="code highlight">
           <pre class="javascript">  storeFile (file) {
-    fileCache.store(join(<span class="hljs-keyword">this</span>.dest, file.name), file)
-    <span class="hljs-keyword">return</span> file
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-26" id="section-26"></a>
+</div>
+<p>dbg(<code>storeFile ${file.name}</code>)</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.fileCache.store(join(<span class="hljs-keyword">this</span>.dest, file.name), file)
   }
 </pre>
         </td>
@@ -843,6 +877,15 @@ _getFiles
         </td>
         <td class="code highlight">
           <pre class="javascript">  mergeStore () {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.fileCache.all()
+    .then(<span class="hljs-function">(<span class="hljs-params">files</span>) =&gt;</span> {
+      <span class="hljs-keyword">const</span> count = <span class="hljs-built_in">Object</span>.keys(files).length
+      dbg(<span class="hljs-string">`merging <span class="hljs-subst">${count}</span> tracked files from <span class="hljs-subst">${<span class="hljs-keyword">this</span>.src}</span>`</span>)
+      <span class="hljs-built_in">Object</span>.assign(<span class="hljs-keyword">this</span>.files, files)
+    })
+  }
+}
+
 </pre>
         </td>
       </tr>
@@ -851,21 +894,14 @@ _getFiles
         <td class="docs">
           <div class="dox">
 <div class="summary">
-<p>const files = fileCache.match(<code>${this.dest} /*</code>)
-const count = Object.keys(files).length
-dbg(<code>merging ${count} tracked files from ${this.src}</code>)
-Object.assign(this.files, files)
-}
-}</p>
-</div>
-<div class="body">
-<p>/**</p>
 <div class="pilwrap" id="_doauth">
   <h3>
     <a href="#_doauth" name="_doauth" class="pilcrow"></a>
 _doAuth
   </h3>
 </div>
+</div>
+<div class="body">
 <p>set up the API auth structure, retrieve cached token or request one</p>
 <p>__ tokens __</p>
 <ul>
@@ -886,19 +922,12 @@ _doAuth
         </td>
         <td class="code highlight">
           <pre class="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_doAuth</span> (<span class="hljs-params">auth</span>) </span>{
-  <span class="hljs-keyword">if</span> (oauth) <span class="hljs-keyword">return</span> vow.resolve()
+  <span class="hljs-keyword">if</span> (oAuth2Client) <span class="hljs-keyword">return</span> vow.resolve()
   dbg(<span class="hljs-string">'doing oAuth2'</span>)
-  <span class="hljs-keyword">const</span> googleAuth = <span class="hljs-keyword">new</span> GoogleAuth()
-  oauth = <span class="hljs-keyword">new</span> googleAuth.OAuth2(
+  oAuth2Client = <span class="hljs-keyword">new</span> google.auth.OAuth2(
     auth.client_id,
     auth.client_secret,
     [
-      <span class="hljs-string">'urn:ietf:wg:oauth:2.0:oob'</span>,
-      <span class="hljs-string">'http://localhost'</span>
-    ]
-  )
-  <span class="hljs-keyword">return</span> vow.resolve()
-  .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
 </pre>
         </td>
       </tr>
@@ -908,11 +937,14 @@ _doAuth
           <div class="pilwrap">
   <a class="pilcrow" href="#section-29" id="section-29"></a>
 </div>
-<p>see if token has been recorded in config</p>
+<p>'urn:ietf:wg:oauth:2.0:oob' //,</p>
 
         </td>
         <td class="code highlight">
-          <pre class="javascript">    <span class="hljs-keyword">let</span> configToken = config.get(<span class="hljs-string">'metalsmith-google-drive'</span>).token
+          <pre class="javascript">      <span class="hljs-string">'http://localhost'</span>
+    ]
+  )
+  <span class="hljs-keyword">return</span> vow.resolve()
 </pre>
         </td>
       </tr>
@@ -922,11 +954,13 @@ _doAuth
           <div class="pilwrap">
   <a class="pilcrow" href="#section-30" id="section-30"></a>
 </div>
-<p>no idea why google auth needs the token to be writable, but whatever</p>
+<p>try config</p>
 
         </td>
         <td class="code highlight">
-          <pre class="javascript">    <span class="hljs-keyword">if</span> (configToken) configToken = config.util.cloneDeep(configToken)
+          <pre class="javascript">  .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">return</span> config.get(<span class="hljs-string">'metalsmith-google-drive'</span>).token
+  })
 </pre>
         </td>
       </tr>
@@ -936,16 +970,13 @@ _doAuth
           <div class="pilwrap">
   <a class="pilcrow" href="#section-31" id="section-31"></a>
 </div>
-<p>fall back to cache (params), then do token flow</p>
+<p>try cache</p>
 
         </td>
         <td class="code highlight">
-          <pre class="javascript">    <span class="hljs-keyword">return</span> configToken || valueCache.retrieve(<span class="hljs-string">'token'</span>) || _tokenFlow()
+          <pre class="javascript">  .then(<span class="hljs-function">(<span class="hljs-params">token</span>) =&gt;</span> {
+    <span class="hljs-keyword">return</span> token || <span class="hljs-keyword">this</span>.valueCache.retrieve(<span class="hljs-string">'token'</span>)
   })
-  .then(<span class="hljs-function">(<span class="hljs-params">token</span>) =&gt;</span> {
-    oauth.credentials = token
-  })
-  .catch(<span class="hljs-function">(<span class="hljs-params">err</span>) =&gt;</span> {
 </pre>
         </td>
       </tr>
@@ -955,12 +986,32 @@ _doAuth
           <div class="pilwrap">
   <a class="pilcrow" href="#section-32" id="section-32"></a>
 </div>
+<p>fall back to cli token flow</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">  .then(<span class="hljs-function">(<span class="hljs-params">token</span>) =&gt;</span> {
+    <span class="hljs-keyword">return</span> token || _tokenFlow()
+  })
+  .then(<span class="hljs-function">(<span class="hljs-params">token</span>) =&gt;</span> {
+    oAuth2Client.credentials = config.util.cloneDeep(token)
+  })
+  .catch(<span class="hljs-function">(<span class="hljs-params">err</span>) =&gt;</span> {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-33" id="section-33"></a>
+</div>
 <p>if some failure occurred invalidate oauth object so we don't simply
 try to use it next time.</p>
 
         </td>
         <td class="code highlight">
-          <pre class="javascript">    oauth = <span class="hljs-literal">false</span>
+          <pre class="javascript">    oAuth2Client = <span class="hljs-literal">false</span>
     <span class="hljs-keyword">return</span> vow.reject(err)
   })
 }
@@ -991,7 +1042,7 @@ this fn prints the auth url, which gives the user a code to paste back in</p>
           <pre class="javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">_tokenFlow</span> (<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> defer = vow.defer()
   <span class="hljs-keyword">let</span> prompt
-  <span class="hljs-keyword">const</span> authUrl = oauth.generateAuthUrl({
+  <span class="hljs-keyword">const</span> authUrl = oAuth2Client.generateAuthUrl({
     <span class="hljs-attr">access_type</span>: <span class="hljs-string">'offline'</span>,
     <span class="hljs-attr">scope</span>: [<span class="hljs-string">'https://www.googleapis.com/auth/drive.readonly'</span>]
   })
@@ -1005,7 +1056,7 @@ this fn prints the auth url, which gives the user a code to paste back in</p>
     (code) =&gt; {
       prompt.close()
       <span class="hljs-keyword">if</span> (code === <span class="hljs-string">'ok'</span>) <span class="hljs-keyword">return</span> defer.reject(<span class="hljs-string">'skip'</span>)
-      oauth.getToken(code, (err, result) =&gt; {
+      oAuth2Client.getToken(code, (err, result) =&gt; {
         <span class="hljs-keyword">if</span> (err) {
           dbg(err)
           defer.reject(err)
@@ -1018,8 +1069,8 @@ this fn prints the auth url, which gives the user a code to paste back in</p>
           <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'---------- snip ----------'</span>)
           <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'this token is cached automatically, but you can store'</span>)
           <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'it in a config file like config/local.js if you want.'</span>)
-          valueCache.store(<span class="hljs-string">'token'</span>, result)
-          defer.resolve(result)
+          <span class="hljs-keyword">this</span>.valueCache.store(<span class="hljs-string">'token'</span>, result)
+          .then(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> defer.resolve(result))
         }
       })
     }

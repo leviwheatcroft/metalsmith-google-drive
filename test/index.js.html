@@ -52,19 +52,9 @@
 } <span class="hljs-keyword">from</span> <span class="hljs-string">'nock'</span>
 <span class="hljs-keyword">import</span> config <span class="hljs-keyword">from</span> <span class="hljs-string">'config'</span>
 <span class="hljs-keyword">import</span> debug <span class="hljs-keyword">from</span> <span class="hljs-string">'debug'</span>
-<span class="hljs-keyword">import</span> { join } <span class="hljs-keyword">from</span> <span class="hljs-string">'path'</span>
-<span class="hljs-keyword">import</span> { assert } <span class="hljs-keyword">from</span> <span class="hljs-string">'chai'</span>
+<span class="hljs-keyword">import</span> assert <span class="hljs-keyword">from</span> <span class="hljs-string">'assert'</span>
 <span class="hljs-keyword">import</span> Metalsmith <span class="hljs-keyword">from</span> <span class="hljs-string">'metalsmith'</span>
-<span class="hljs-keyword">import</span> sinon <span class="hljs-keyword">from</span> <span class="hljs-string">'sinon'</span>
-<span class="hljs-keyword">import</span> hjson <span class="hljs-keyword">from</span> <span class="hljs-string">'hjson'</span>
-<span class="hljs-keyword">import</span> { writeFileSync, readFileSync } <span class="hljs-keyword">from</span> <span class="hljs-string">'fs'</span>
-
-<span class="hljs-keyword">const</span> dbg = debug(<span class="hljs-string">'metalsmith-google-drive'</span>)
-nockBack.setMode(<span class="hljs-string">'record'</span>)
-nockBack.fixtures = <span class="hljs-string">'test/fixtures/scrape'</span>
-
-describe(<span class="hljs-string">'metalsmith-google-drive test'</span>, () =&gt; {
-  beforeEach(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+<span class="hljs-keyword">import</span> {
 </pre>
         </td>
       </tr>
@@ -74,27 +64,31 @@ describe(<span class="hljs-string">'metalsmith-google-drive test'</span>, () =&g
           <div class="pilwrap">
   <a class="pilcrow" href="#section-2" id="section-2"></a>
 </div>
-<p>create spy
-sinon.spy(cloudinary.api, 'resources')</p>
+<p>writeFileSync as write,</p>
 
         </td>
         <td class="code highlight">
-          <pre class="javascript">  })
+          <pre class="javascript">  readFileSync <span class="hljs-keyword">as</span> readFile,
+  unlinkSync <span class="hljs-keyword">as</span> unlink
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'fs'</span>
+<span class="hljs-keyword">import</span> {
+  join
+} <span class="hljs-keyword">from</span> <span class="hljs-string">'path'</span>
+
+<span class="hljs-keyword">const</span> dbg = debug(<span class="hljs-string">'metalsmith-google-drive'</span>)
+nockBack.setMode(<span class="hljs-string">'record'</span>)
+nockBack.fixtures = <span class="hljs-string">'test/fixtures/scrape'</span>
+
+describe(<span class="hljs-string">'metalsmith-google-drive'</span>, () =&gt; {
+  beforeEach(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  })
   afterEach(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-</pre>
-        </td>
-      </tr>
-    
-      <tr>
-        <td class="docs">
-          <div class="pilwrap">
-  <a class="pilcrow" href="#section-3" id="section-3"></a>
-</div>
-<p>cloudinary.api.resources.restore()</p>
-
-        </td>
-        <td class="code highlight">
-          <pre class="javascript">  })
+  })
+  after(<span class="hljs-function">(<span class="hljs-params">done</span>) =&gt;</span> {
+    unlink(<span class="hljs-string">'cache/google-drive-0B1QpLgu4mpt8YXJTYzRlZURkazg-files.db'</span>)
+    unlink(<span class="hljs-string">'cache/google-drive-0B1QpLgu4mpt8YXJTYzRlZURkazg-values.db'</span>)
+    done()
+  })
   it(<span class="hljs-string">'should be able to scrape a folder'</span>, (done) =&gt; {
     nockBack(<span class="hljs-string">'nock'</span>, (writeRequests) =&gt; {
       Metalsmith(<span class="hljs-string">'test/fixtures/scrape'</span>)
@@ -104,6 +98,28 @@ sinon.spy(cloudinary.api, 'resources')</p>
         <span class="hljs-attr">dest</span>: <span class="hljs-string">'articles'</span>,
         <span class="hljs-attr">invalidateCache</span>: <span class="hljs-literal">true</span>
       }))
+      .use(<span class="hljs-function">(<span class="hljs-params">files</span>) =&gt;</span> {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-3" id="section-3"></a>
+</div>
+<p>dbg(Object.keys(files))
+dbg(files['articles/354.jpg'])
+dbg(files['articles/354.jpg'].contents.toString())</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">        assert.ok(Buffer.compare(
+          files[<span class="hljs-string">'articles/354.jpg'</span>].contents,
+          readFile(join(__dirname, <span class="hljs-string">'fixtures/scrape/src/354.jpg'</span>))
+        ) === <span class="hljs-number">0</span>)
+        assert.ok(<span class="hljs-string">'files[articles/test.md]'</span>)
+      })
       .build(<span class="hljs-function">(<span class="hljs-params">err, files</span>) =&gt;</span> {
         <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> done(err)
 </pre>
@@ -114,6 +130,56 @@ sinon.spy(cloudinary.api, 'resources')</p>
         <td class="docs">
           <div class="pilwrap">
   <a class="pilcrow" href="#section-4" id="section-4"></a>
+</div>
+<p>writeRequests()</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">        done()
+      })
+    })
+  }).timeout(<span class="hljs-number">0</span>)
+  it(<span class="hljs-string">'should be able to scrape a folder from cache'</span>, (done) =&gt; {
+    nockBack(<span class="hljs-string">'nock'</span>, (writeRequests) =&gt; {
+      Metalsmith(<span class="hljs-string">'test/fixtures/scrapeCache'</span>)
+      .use(plugin({
+        <span class="hljs-attr">auth</span>: config.get(<span class="hljs-string">'metalsmith-google-drive'</span>),
+        <span class="hljs-attr">src</span>: <span class="hljs-string">'0B1QpLgu4mpt8YXJTYzRlZURkazg'</span>,
+        <span class="hljs-attr">dest</span>: <span class="hljs-string">'articles'</span>,
+        <span class="hljs-attr">invalidateCache</span>: <span class="hljs-literal">false</span>
+      }))
+      .use(<span class="hljs-function">(<span class="hljs-params">files</span>) =&gt;</span> {
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-5" id="section-5"></a>
+</div>
+<p>dbg(Object.keys(files))
+dbg(files['articles/354.jpg'])
+dbg(files['articles/354.jpg'].contents.toString())</p>
+
+        </td>
+        <td class="code highlight">
+          <pre class="javascript">        assert.ok(Buffer.compare(
+          files[<span class="hljs-string">'articles/354.jpg'</span>].contents,
+          readFile(join(__dirname, <span class="hljs-string">'fixtures/scrapeCache/src/354.jpg'</span>))
+        ) === <span class="hljs-number">0</span>)
+        assert.ok(<span class="hljs-string">'files[articles/test.md]'</span>)
+      })
+      .build(<span class="hljs-function">(<span class="hljs-params">err, files</span>) =&gt;</span> {
+        <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">return</span> done(err)
+</pre>
+        </td>
+      </tr>
+    
+      <tr>
+        <td class="docs">
+          <div class="pilwrap">
+  <a class="pilcrow" href="#section-6" id="section-6"></a>
 </div>
 <p>writeRequests()</p>
 
